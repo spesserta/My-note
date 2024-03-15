@@ -19,6 +19,24 @@
 ###  8、字符串的拼接<br>
 `string str8=str2+"awkufgwi";`                         //str8为str2基础上再加上一串字符
 `string str8+="wckaeugb"； `                            //str8在后面加上一串字符
+```c++
+#include<iostream>
+#include<string> 
+using namespace std;
+int main()
+{
+	string str1;  //构造但是不赋值 
+	string str2="hello"; //构造且赋值"hello"
+	string str3("你好"); //char形式构造且赋值"你好"
+	string str4(11,'s'); // 用11个s赋值
+	string str5(str2); //拷贝构造赋值str2的内容
+	string str6(move(str3));//str3赋值到str6并删除str3
+	string str7(str1,4); //将str1索引为4开始的所有值都赋值进去 
+	string str8(str1,4,6); //将str1索引为4到索引为6的元素赋值进去
+	string str9=str1+str2+"wjdyv"; //拼接好后赋值进去 
+	return 0;
+}
+```
 
 ## 二、string元素访问<br>
 ### 1、方括号[]访问具体元素，类似于数组访问<br>
@@ -33,8 +51,25 @@ str[2]='E'; //将str的第三个元素改成"E"`
 `cout<<str.front()<<endl;
  cout<<str.back()<<endl;`
 ### 4、c_ctr()和data()<br>
->两者都是返回一个字符串的指针<br>
+>两者都是返回一个字符串的指针，即C方式的输出整句话<br>
 `cout<<str.c_str()<<endl;`
+>>应用：
+```c++
+#include<iostream>
+using namespace std;
+int main(){
+	string str="Hello world!";
+	cout<<str[0]<<endl;       
+	cout<<str.at(1)<<endl;
+	cout<<str.front()<<endl;
+	cout<<str.back()<<endl;
+	cout<<str.data()<<endl;
+	cout<<str.c_str()<<endl;
+	return 0;
+}
+```
+![image](https://github.com/spesserta/My-algorithm-note/assets/138494873/eb662438-a3f0-4aa6-bab2-8cace91af93b)
+
 
 ## 三、容量操作<br>
 ### 1、`empty()`
@@ -59,6 +94,20 @@ cout<<str.size()<<endl;
 ### 6、reserve()和shrink_to_fit()
 >前者是提前给字符串分配内存，分配100那size什么的不变，capacity变成100；后者是把没有用到的容量释放掉<br>
 `str.reserve(100);`
+>>应用：
+```c++
+#include<iostream>
+using namespace std;
+int main(){
+	string str="Hello world!";
+	cout<<str.empty()<<endl;  //输出判断是否为空的结果 
+	cout<<str.size()<<endl;   //输出长度
+	cout<<str.length()<<endl;	
+	return 0;
+}
+```
+![image](https://github.com/spesserta/My-algorithm-note/assets/138494873/f0a6a0a8-8da0-44e5-991d-6c1ff9f5138e)
+
 
 ## 四、string迭代器：迭代器就是为容器类提供一个专门遍历的接口
 ### 1、正向迭代器iterator
@@ -75,21 +124,39 @@ string str="dwajkhfgg";
 string::reverse_iterator it=str.rbegin();  //声明一个str的反向迭代器，将迭代器指向str首部
 for(;it!=str.rend();it++)                  //从首部到尾部进行遍历
 ```
+>应用：
+```c++
+#include<iostream>
+using namespace std;
+int main(){
+	string str="Hello world!";
+	string::iterator it=str.begin(); //正向迭代器
+	for(;it<=str.end();it++)  
+	  cout<<*it;
+	cout<<endl;
+	string::reverse_iterator rit=str.rbegin(); //反向迭代器
+	for(;rit<=str.rend();rit++)
+	 cout<<*rit;	
+	return 0;
+}
 
+```
 ## 五、字符串的比较操作
 ### 1、==
->判断两个字符串的内容是否相等，如果相等就返回true，否则就false
+>判断两个字符串的内容是否相等，如果相等就返回1，否则就0
 ```c++
 string str1="dawjv";
-* string str2="dwajy";
-* cout<<(str1==str2)<<endl;
+string str2="dwajy";
+cout<<(str1==str2)<<endl;
 ```
 ### 2、compare()
 >判断两个字符串，等于就是0，小于就是负数，大于就是正数，根据ASCII码来作为判断标准
 ```c++
 string str1="dawjv";
-* string str2="dwajy";
-* cout<<str1.compare(str2)<<endl;
+string str2="dwajy";
+string str3="dawjv";
+cout<<str1.compare(str2)<<endl;
+cout<<str1.compare(str3)<<endl;
 ```
 ### 3、starts_with()和end_with()(C++20)
 >比较两者是否是以特定的内容为开头或者结尾，返回true或false
@@ -145,7 +212,7 @@ str.erase(2,3);//索引为2开始，清除3个字符、
 str.erase();  //清除所有字符
 ```
 ## 七、替换与子串
-### 1、replace()
+### 1、replace()  //不可用
 >替换指定位置的内容
 ```c++
 string str = "qwedkugg";
@@ -176,7 +243,7 @@ string str="wekugwdjhv";
 string index=str.rfind("jhv");//index为str里面的jhv中v的索引位置
 ```
 ## 九、string的其他操作
-### 1、to_string()
+### 1、to_string() //不可用
 >将一串整数或小数转换成string类型，从而可以进行拼接等操作
  ```c++
 string str="dewqkh";
@@ -196,5 +263,29 @@ string str1="akewrufg";
 hash<string> hs;
 cout<<hs(str)<<endl;  //输出str的哈希值
 cout<<hs(str1)<<endl;  //输出str1的哈希值
+```
+>总结代码：
+```c++
+#include<iostream>
+using namespace std;
+int main(){
+	string str="1239456789";
+	str.pop_back();
+	cout<<str<<endl;
+	str.push_back('9');
+	cout<<str<<endl;
+	cout<<str.find('9')<<endl;	
+	cout<<str.rfind('9')<<endl;
+	str.erase(1,4);
+	cout<<str<<endl;
+	str.insert(1,4,'a');
+	cout<<str<<endl;
+	str.append("新增内容");
+	cout<<str<<endl;
+    cout<<str.substr()<<endl;
+    cout<<str.substr(2)<<endl;
+    cout<<str.substr(2,5)<<endl;
+	return 0;
+}
 ```
 
