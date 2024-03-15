@@ -288,4 +288,6 @@ int main(){
 	return 0;
 }
 ```
+![image](https://github.com/spesserta/My-algorithm-note/assets/138494873/1dda0980-302c-4f2f-b4ed-ad8944103a83)
+
 
