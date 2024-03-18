@@ -261,10 +261,62 @@ cout<<dict["Tom"];   //输出1
 ### 4、清空clear<br>
 只需要调用clear()即可清空映射表。<br>
 
+## 四、栈stack<br>
+加上`include<stack>`头文件，再定义栈`stack<T> s`即可定义了一个储存T类型的栈s。<br>
+1、入栈和出栈和获取栈顶元素<br>
+入栈：`push()`<br>
+出栈：`pop()`<br>
+获取栈顶元素：`top()`<br>
+通过入栈和出栈都有“先进后出、后进先出”的规律。
+```c++
+#include<iostream>
+#include<stack>
+using namespace std;
+int main(){
+	stack<int> s;
+	s.push(1);
+	cout<<s.top()<<endl;
+	s.push(2);
+	cout<<s.top()<<endl;
+	s.push(3); 
+	cout<<s.top()<<endl;
+	s.pop();
+	cout<<s.top()<<endl;
+	s.pop();
+	cout<<s.top()<<endl;
+	s.pop();
+	cout<<s.top()<<endl;
+	
+	return 0;
+}
+```
+![image](https://github.com/spesserta/My-algorithm-note/assets/138494873/55df2f71-908d-471e-b9e0-f1153624a090)
 
-
-
-
+2、判空和栈的数据个数：<br>
+判空：`empty()`<br>
+获取元素个数：`size()`<br>
+```c++
+#include<iostream>
+#include<stack>
+using namespace std;
+int main(){
+	stack<string> s;
+	s.push("小明");
+	cout<<"栈顶元素："<<s.top()<<"栈的个数："<<s.size()<<endl;
+	s.push("小红");
+	cout<<"栈顶元素："<<s.top()<<"栈的个数："<<s.size()<<endl;
+	s.push("小刚"); 
+	cout<<"栈顶元素："<<s.top()<<"栈的个数："<<s.size()<<endl;
+	s.pop();
+	cout<<"栈顶元素："<<s.top()<<"栈的个数："<<s.size()<<endl;
+	s.pop();
+	cout<<"栈顶元素："<<s.top()<<"栈的个数："<<s.size()<<endl;
+	cout<<"是否为空："<<s.empty()<<endl;;
+	s.pop();
+	cout<<"是否为空："<<s.empty()<<endl;;
+	return 0;
+}
+```
 
 
 
