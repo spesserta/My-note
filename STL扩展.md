@@ -372,7 +372,7 @@ int main ()
 
 ## 四、栈stack<br>
 加上`include<stack>`头文件，再定义栈`stack<T> s`即可定义了一个储存T类型的栈s。<br>
-1、入栈和出栈和获取栈顶元素<br>
+### 1、入栈和出栈和获取栈顶元素<br>
 入栈：`push()`<br>
 出栈：`pop()`<br>
 获取栈顶元素：`top()`<br>
@@ -401,7 +401,7 @@ int main(){
 ```
 ![image](https://github.com/spesserta/My-algorithm-note/assets/138494873/55df2f71-908d-471e-b9e0-f1153624a090)
 
-2、判空和栈的数据个数：<br>
+### 2、判空和栈的数据个数：<br>
 判空：`empty()`<br>
 获取元素个数：`size()`<br>
 ```c++
@@ -429,19 +429,31 @@ int main(){
 
 ## 五、队列Queue<br>
 >学过数据结构就知道，队列相当于商场排队的人，是先进先出后进后出，只能在首尾两端操作的线性表。<br>
-1、定义一个队列：<br>
+### 1、定义一个队列：<br>
 `queue<T> qu`<br>
-2、入队和出队：<br>
+### 2、入队和出队：<br>
 入队：`qu.push()`<br>
 出队：`qu.pop()`<br>
-3、返回首尾的元素值：<br>
+### 3、返回首尾的元素值：<br>
 返回queue中第一个元素的引用：`qu.front()`<br>
 返回queue中最后一个元素的引用：`qu.back()`<br>
-4、返回队列中元素个数：<br>
+### 4、返回队列中元素个数：<br>
 `qu.size()`<br>
-5、判断queue中有没有元素：<br>
+### 5、判断queue中有没有元素：<br>
 `qu.empty()`有元素就返回0，没有元素就返回1.<br>
-6、例题：<br>
+### 6、遍历队列的元素：<br>
+>和其他类型不一样，queue不支持迭代器遍历，只能一边遍历一边出队。<br>
+```c++
+	while(V.size()){
+		cout<<V.front()<<endl;  //输出元素
+		V.pop();                //出队
+	}
+	while(NO.size()){
+		cout<<NO.front()<<endl;
+		NO.pop();
+	}
+```
+### 7、例题：<br>
 ![image](https://github.com/spesserta/My-algorithm-note/assets/138494873/59edc1dd-59e0-4439-a56c-c398c2a358e6)
 ![image](https://github.com/spesserta/My-algorithm-note/assets/138494873/5e1af5fb-a190-4773-9b11-049d26552f01)
 ```c++
