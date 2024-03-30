@@ -351,8 +351,7 @@ int main(){
 二、题二<br>
 ![image](https://github.com/spesserta/My-algorithm-note/assets/138494873/4750c019-c0c1-428c-91cc-e75baa589bf4)
 ![image](https://github.com/spesserta/My-algorithm-note/assets/138494873/bd61e18a-eff7-49b7-b493-b0815fc9ab2a)
->象棋中马的路线是日字型的，可以走的8个方向如下：
-![99b9422998c3b7eb745ae9ad5051374](https://github.com/spesserta/My-note/assets/138494873/cb203041-4ca6-44f7-b6d7-5138d3940e34)
+
 
 ```c++
 #include<iostream>
@@ -440,7 +439,8 @@ int main(){
 
 三、马的遍历<br>
 ![image](https://github.com/spesserta/My-note/assets/138494873/2de36491-2b34-42ac-b940-c6708194fadf)
-
+>象棋中马的路线是日字型的，可以走的8个方向如下：
+![99b9422998c3b7eb745ae9ad5051374](https://github.com/spesserta/My-note/assets/138494873/cb203041-4ca6-44f7-b6d7-5138d3940e34)
 ```c++
 #include<iostream>
 #include<queue>
