@@ -155,9 +155,35 @@ int main() {
  } 
 
 ```
-## 六、查找函数：upper_bound()、lower_bound()<br>
+## 六、二分查找函数：upper_bound()、lower_bound()<br>
 ### 1、upper_bound()：查找第一个大于x的值的位置<br>
 ### 2、lower_bound()：查找第一个大于等于x的值的位置<br>
+### 例题：<br>
+![image](https://github.com/spesserta/My-note/assets/138494873/cb61da51-96d3-4849-a9f3-6bd2304b6b8c)
+```cpp
+#include<iostream>
+#include<algorithm>
+using namespace std;
+int num[1000010];
+int main(){
+	int n,m;
+	cin>>n>>m;
+	for(int i=1;i<=n;i++){
+		cin>>num[i];
+	}
+	while(m--){
+		int x;
+		cin>>x;
+		int index=lower_bound(num+1,num+n+1,x)-num; //由于返回的是一个地址，因此需要减去num
+		if(num[index]==x){
+			cout<<index<<" ";
+		}else{
+			cout<<-1<<" ";
+		}
+	}
+	return 0;
+}
+```
 
 ## 七、填充函数：fill()<br>
 在区间内填充某一个值。同样适用所有类型数组，容器。<br>
