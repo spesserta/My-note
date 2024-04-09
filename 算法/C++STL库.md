@@ -3,6 +3,7 @@
 * vector库
 * set库
 * queue库
+* priority_queue库
 * stack库
 * map库
 
