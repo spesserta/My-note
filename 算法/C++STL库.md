@@ -650,6 +650,50 @@ int main()
 }
 ```
 
+# 优先队列（堆）
+优先队列相比于队列，它在元素插入时候就会对其进行排序，默认将大的数值放在队首（大顶堆）。<br>
+使用优先队列需要加上`#include<queue>`头文件。<br>
+### 1、基本操作
+* 大顶堆定义为`priority_queue<int> qu; ` <br>
+* 小顶堆定义为`priority_queue<int,vector<int>,greater<int>> qu2;`<br>
+* 入队：`qu.push(type a);` <br>
+* 出队：`qu.pop();` <br>
+* 访问队头元素：`qu.top()` <br>
+* 判空：`qu.empty()` <br>
+* 返回队列元素个数：`qu.size();`<br>
+![image](https://github.com/spesserta/My-note/assets/138494873/2fa180ee-d947-4978-9e1c-bd548268b9da)
+### 2、自定义类型的优先队列
+>优先队列相比于普通队列，它多了优先级比较，如果直接将自定义类型用作优先队列的类型，优先队列就不知道以什么规则来比较优先级，会报错。<br>
+>因此需要自己重载比较运算符得到。<br>
+```cpp
+#include <iostream>
+#include<queue>
+using namespace std;
+struct Node{
+  int x;
+  int y;	
+  bool operator<(const Node &b)const{
+  	//用x作为优先级比较的内容
+  	//'>'为x小的优先级高，'<'是x大的优先级高 
+    return this->x<b.x;  
+	  
+  }
+}no;
+int main()
+{
+  priority_queue<Node> que;
+  que.push((Node){1,5});
+  que.push((Node){2,3});
+  que.push((Node){3,7});
+  que.push((Node){0,0});
+  cout<<que.top().x<<" "<<que.top().y<<endl; 
+  return 0;
+}
+```
+![image](https://github.com/spesserta/My-note/assets/138494873/d078dfce-886d-4d9d-b4b3-ce3709f5c2a2)
+
+
+
 # 栈stack<br>
 加上`include<stack>`头文件，再定义栈`stack<T> s`即可定义了一个储存T类型的栈s。<br>
 ### 1、入栈和出栈和获取栈顶元素<br>
