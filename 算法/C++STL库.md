@@ -693,6 +693,42 @@ int main()
 ```
 ![image](https://github.com/spesserta/My-note/assets/138494873/d078dfce-886d-4d9d-b4b3-ce3709f5c2a2)
 
+### 例题：<br>
+![image](https://github.com/spesserta/My-note/assets/138494873/143b2087-431c-4e32-b460-4d292a6fa4ce)
+```cpp
+/*
+整一个从小到大排序的优先队列
+将所有数值push进去
+while 直到size为1停下
+pop2个，求和，将结果push进队列，cnt加上
+*/
+#include<bits/stdc++.h>
+#include <queue>
+using namespace std;
+priority_queue<int,vector<int>,greater<int>> que;
+int main() {
+    int n;
+    cin>>n;
+    while(n--) {
+        int t;
+        cin>>t;
+        que.push(t);
+    }
+    long long cnt=0;
+    while(que.size()>1) {
+        int a=que.top();
+        que.pop();
+        int b=que.top();
+        que.pop();
+        int c=a+b;
+        cnt+=c;
+        que.push(c);
+    }
+    cout << cnt;
+    return 0;
+}
+```
+
 
 
 # 栈stack<br>
