@@ -422,7 +422,10 @@ for ( vector<int>::iterator it=a.begin() ; it!=a.end() ; it++ )
 for ( auto it=a.begin() ; it!=a.end() ; it++ )
    cout<<*it<<endl;
 ```
-### 10、例题：<br>
+### 10、删除指定元素<br>
+erase(地址,个数)；即可
+
+### 11、例题：<br>
 ![image](https://github.com/spesserta/My-algorithm-note/assets/138494873/c2bb2cb0-6f73-4940-b3ca-b63e0ab05874)
 ![image](https://github.com/spesserta/My-algorithm-note/assets/138494873/74fd0fd3-8315-47c8-9a6f-e40b67162472)
 ```c++
