@@ -221,6 +221,31 @@ string str = "wekuaeg";
 str.erase(2,3);//索引为2开始，清除3个字符、
 str.erase();  //清除所有字符
 ```
+
+![image](https://github.com/spesserta/My-note/assets/138494873/2ea27164-cb66-41a2-93d6-529bbf4c2aa7)
+```cpp
+#include<bits/stdc++.h>
+using namespace std;
+int main() {
+    string str;
+    int s,i;
+    cin>>str>>s;
+    while(s) {
+        for(i=0; str[i]<=str[i+1];) { //前边的数尽量小
+            i++;
+        }
+        str.erase(i,1);
+        s--;
+    }
+    while(str[0]=='0'&&str.size()>1) { //处理前导零，但要注意长度不能为0
+        str.erase(0,1);
+    }
+    cout<<str;
+    return 0;
+}
+```
+
+
 ## 七、替换与子串
 ### 1、replace()  //不可用
 >替换指定位置的内容
