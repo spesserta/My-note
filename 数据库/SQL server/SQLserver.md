@@ -199,9 +199,32 @@ truncate table People
 ```
 >truncate和delete的区别:前者是清空所有数据，不能有条件。delete既可以删除所有数据，也可以删除符合条件的数据，假设表中编号为1,2,3,4,5,6，使用turncate时编号不变，delete的话编号就永远不存在了，变成了7,8,9,10等
 
-# 
-
-
+# 八、基本查询
+## 1、查询所有列和所有行
+```sql
+--*星号代表所有的意思 , from代表查询东西的来源
+select *from 表名
+```
+## 2、查询指定列
+```sql
+select 需要查询的元素
+from 查询数据的来源表
+--例如我要查询指定列即姓名、性别、生日、月薪、电话
+select PeName,PeSex,PeBirth,PeSalary,PePhone
+from People
+--当然也可以对每列的列名起一个中文别名，注意这样只是改变了显示的列名
+--只需要在每一个需要查询的列名后面写上别名即可
+select PeName 姓名,PeSex 性别,PeBirth 生日,PeSalary 工资,PePhone 电话
+from People
+--当然也可以用distinct对特定元素进行去重
+--例如我要查询员工所在城市（不需要显示重复的城市名）
+select distinct(PeAddress)
+from People
+--当然可以尝试看一下改变元素后的状态（不改变当前数据库里的数据）
+--假设准备加百分之20的公资，看一下加完工资后的样子
+select PeSalary*1.2 加薪后工资,PeName,PeSalary 原始工资
+from People
+```
 
 
 
