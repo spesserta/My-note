@@ -59,45 +59,56 @@
 ## 六、随机数
 * rand(m,n)生成均匀分布的m行n列的均匀分布的伪随机数
 * rand(m,n,'double')生成指定精度的均匀分布的伪随机数
-![alt text](image.png)
+![image](https://github.com/spesserta/My-note/assets/138494873/1abf005b-e522-4993-8d30-16e6877c1a97)
 * rand(RandStream,m,n)利用指定的RandStream生成为随机数
 * randn生成标准正态分布的伪随机数（均值为0，方差为1）
 * randi生成均匀分布的伪随机整数
 * randi(Max)在开区间（0，Max）生成均匀分布的伪随机整数
 * randi(Max,m,n)在开区间（0，Nax）生成m*n型随机矩阵
 * r=randi([iMin,iMax],m,n)在开区间（iMin,iMax）生成m*n型随机矩阵
-![alt text](image-1.png)
+![image-1](https://github.com/spesserta/My-note/assets/138494873/19a10f9c-7de4-4e78-84f2-d9e473c7b0d2)
+
 
 ## 七、元胞数组
 元胞数组就是每格都可容纳一片区域的数组，数组之间的数据类型可以不相同。<br>
 * A=cell(1,5) 生成一个1*5的元胞数组
 * A{2}=eye(3) 元胞数组中第二个格子里面生成一个3*3且对角线为1的矩阵
 * A{5}=magic(5) 第5个格子中生成一个5*5的幻方（行+列+对角线值相等）
-![alt text](image-2.png)
-![alt text](image-3.png)
+![image-2](https://github.com/spesserta/My-note/assets/138494873/06b127a3-b80b-4022-b9bb-e233fabe0623)
+
+![image-3](https://github.com/spesserta/My-note/assets/138494873/64897e6b-5545-4a33-83e9-ffa809ed801e)
+
 
 ## 八、结构体
 books=struct('name',{{'lalalalalla','widhqwiug'}},'price',[20,40])
 创建一个名为books的结构体，里面包含name和price
-![alt text](image-4.png)
+![image-4](https://github.com/spesserta/My-note/assets/138494873/c28a4b78-3210-4ac8-abb1-f7908a1c341d)
+
 books.name 输出books结构体中的name里面的所有内容
 books.name(1) 输出books结构体中name里面的第一个内容
-![alt text](image-5.png)
+![image-5](https://github.com/spesserta/My-note/assets/138494873/53f283f7-755a-43a9-a3bf-ca098675e63a)
+
 
 ## 九、矩阵操作
 ### 1、构造矩阵
 * A=[1 2 3 4 5 6 7 8] 创建了一个名为A的一个数组（元胞结构是花括号）
 * B=1:3:9 创建了一个从1到9的，步长为2的数组
-![alt text](image-6.png)
+![image-6](https://github.com/spesserta/My-note/assets/138494873/778f6664-e78f-4ce9-9fa6-fd8500d035c2)
+
 * C=repmat(B,3,1) 重复B 横着的3次，竖着的1次
-![alt text](image-7.png)
+![image-7](https://github.com/spesserta/My-note/assets/138494873/40a3736b-17cc-41e0-90b7-de7de9578ea0)
+
 * D=ones(2,4)  生成一个2乘4的单位矩阵
-![alt text](image-8.png)
+![image-8](https://github.com/spesserta/My-note/assets/138494873/60fec29d-c248-4b1c-a367-404bba9c83ec)
+
 ### 2、矩阵的四则运算
 就像一般的数字的四则运算进行即可。<br>
-![alt text](image-9.png)
-![alt text](image-10.png)
-![alt text](image-11.png)
+![image-9](https://github.com/spesserta/My-note/assets/138494873/c85126c1-4f6c-4d47-9495-9df17a8b7557)
+
+![image-10](https://github.com/spesserta/My-note/assets/138494873/5d8b2003-e050-47e2-83ef-dd8a69efaa12)
+
+![image-11](https://github.com/spesserta/My-note/assets/138494873/fb99c175-5acd-4fd9-900b-6ad95aa7ce0b)
+
 
 >注意：A.*B表示矩阵的对应项相乘，A*B表示A和B矩阵一般相乘,A./B也是如此
 
@@ -106,7 +117,8 @@ books.name(1) 输出books结构体中name里面的第一个内容
 * B=A(2,3) 在幻方A中取一个2行3列的元素
 * C=A(3,:) 在幻方A中取出所有3行的数字
 * D=A(:,4) 在幻方A中取出所有4列的数字
-![alt text](image-12.png)
+![image-12](https://github.com/spesserta/My-note/assets/138494873/cc7a7a64-609f-4b46-a958-54383b59ed9a)
+
 * [m,n]=find(A>20) 找出在幻方A中大于20的索引值(m行n列)
 
 
@@ -139,7 +151,8 @@ while i<=100
 end
 disp(sum);
 ```
-![alt text](image-13.png)
+![image-13](https://github.com/spesserta/My-note/assets/138494873/80546b12-6c24-488f-84e4-9dfff185e481)
+
 
 #### 3、选择结构
 ```python
@@ -162,7 +175,8 @@ else
  disp(b);
 end
 ```
-![alt text](image-14.png)
+![image-14](https://github.com/spesserta/My-note/assets/138494873/c7f9cdb3-6b87-412c-96bb-70cb2841d729)
+
 
 
 
