@@ -917,3 +917,42 @@ int main ()
     cout<<ans<<endl;
 }
 ```
+### 8、斯诺登的密码
+![image](https://github.com/spesserta/My-note/assets/138494873/647331f7-29fd-4a54-8ea2-41ab23584f5f)
+>一串单词对应一个数字，用map非常好
+```cpp
+#include<bits/stdc++.h>
+using namespace std;
+map<string,int> q;
+vector<int> vec;
+int main()
+{
+	//对所有单词打表 
+    q["one"]=1;q["two"]=2;q["three"]=3;q["four"]=4;q["five"]=5;
+	q["six"]=6;q["seven"]=7;q["eight"]=8;q["nine"]=9;q["ten"]=10;
+    q["eleven"]=11;q["twelve"]=12;q["thirteen"]=13;q["fourteen"]=14;
+	q["fifteen"]=15;q["sixteen"]=16;q["seventeen"]=17;
+	q["eighteen"]=18;q["nineteen"]=19;q["twenty"]=20;q["a"]=1;
+	q["both"]=2;q["another"]=1;q["first"]=1;q["second"]=2;q["third"]=3;
+	string s;
+	for(int i=1;i<=6;i++){
+		cin>>s;
+		if(q.count(s)){ //如果字典里面有
+		 int k=q[s]*q[s]%100;
+		 if(k==0) continue;
+		 vec.push_back(k);  //将数字插入  
+		}
+	} 
+	if(vec.empty()){ //没有数字就输出0 
+		cout<<0;
+		return 0;
+	} 
+	sort(vec.begin(),vec.end());
+	cout<<vec[0]; //首字母不需要输出前导0 
+	for(int i=1;i<vec.size();i++){
+		if(vec[i]<10) cout<<0; //输出前导0 
+		cout<<vec[i];
+	}
+    return 0;
+}
+```
