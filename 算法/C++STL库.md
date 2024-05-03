@@ -1,11 +1,12 @@
 # 本章包括
-* string库
-* vector库
-* set库
-* queue库
-* priority_queue库
-* stack库
-* map库
+* string容器
+* vector容器
+* set容器
+* queue容器
+* priority_queue容器
+* stack容器
+* map容器
+* deque容器
 
 
 # string库函数总结<br>
@@ -956,3 +957,103 @@ int main()
     return 0;
 }
 ```
+
+# 双端队列deque
+一般的队列只能在两端操作，并且队头只能出队，队尾只能入队，但是双端队列的队头和队尾都可以进行出队和入队。除此之外，双端队列相比于一般队列还支持很多操作。<br>
+### 创建一个双端队列
+和上面的容器一样，都是`deque<数据类型> de;`即可。<br>
+
+### 队头和队尾的操作
+* `push_back()` 尾插
+* `push_front()` 头插
+* `pop_back()` 尾出
+* `pop_front()` 头出
+* 
+### 判空和大小操作
+* `size()` 返回队列的长度
+* `empty()` 判断队列是否为空
+* 
+### 插入和删除特定位置的元素
+* `insert(it,n)` 在迭代器位置中插入n
+* `inser(it,x,n)` 在迭代器中插入x个元素，元素为n
+* `erase(it,n)` 在迭代器位置中删除n
+* `erase(it,it+n)` 删除it到it+n这一区间的元素
+
+### 访问指定位置的元素
+* `at(从0开始的下标)` 即可访问
+
+### 2个deque互相交换元素
+* `swap(deque)` 即可
+
+### deque元素的遍历
+```cpp
+deque<数据类型>::iterator it=de.begin(); //声明一个deque的迭代器
+deque<数据类型>::reverse_iterator rit=de.rbegin();  //声明一个deque的反向迭代器
+for(;it!=de.end();it++){ //正向迭代
+    cout<<de.at(i)<<" ";
+ }
+for(;it!=de.rend();it++){ //反向迭代
+    cout<<de.at(i)<<" ";
+ }
+```
+### 综合运用代码
+```cpp
+#include <bits/stdc++.h>
+using namespace std;
+deque<int> de;
+void show(){
+	cout<<endl<<endl;
+	cout<<"当前元素个数："<<de.size()<<endl;
+    cout<<"当前所有元素：";
+    for(auto it=de.begin();it!=de.end();it++){
+    	cout<<*it<<" ";
+    }
+}
+int main() {
+    
+    //尾插3个元素 
+    de.push_back(1);
+    de.push_back(2);
+    de.push_back(3);
+    show();
+    //头插3个元素
+	de.push_front(-1);
+	de.push_front(-2);
+	de.push_front(-3); 
+	show();
+    //头删和尾删
+	de.pop_back();
+	de.pop_front();
+    show();
+    //插入和删除指定位置元素 
+    deque<int>::iterator it=de.begin();
+	de.insert(it+1,10); //it+n为第n+1个元素位置
+    show();
+    de.erase(it+1);     //注意it+n为第n+2个位置 
+    show();
+    de.insert(it+1,5,10); //从下标it+1开始插入5个元素 
+    show();
+    de.erase(it,it+6);  //删除从第2个到第7个所有元素 
+    show();
+	//访问指定元素
+	cout<<endl<<endl<<"索引为1的元素是："<<de.at(1); 
+    cout<<endl<<endl<<"索引为0的元素是："<<de.at(0);
+    //交换2个deque的元素
+	deque<int> de2={1,2,3,4,5,6}; 
+	de2.swap(de); //de和de2交换 
+	cout<<endl<<endl<<"交换后de的元素为：";
+    for(int i=0;i<de.size();i++){
+    	cout<<de.at(i)<<" ";
+    }
+    deque<int>::reverse_iterator rit=de.rbegin();
+    return 0;
+}
+```
+![image](https://github.com/spesserta/My-note/assets/138494873/700d7d7c-8fab-4fe5-8d39-921ecc8cb6a5)
+
+
+
+
+
+
+
