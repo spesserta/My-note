@@ -1,12 +1,13 @@
 # 本章包括
-* string容器
-* vector容器
-* set容器
-* queue容器
-* priority_queue容器
-* stack容器
-* map容器
-* deque容器
+* string字符串容器
+* vector动态数组容器
+* list双向带头循环链表容器
+* set集合容器
+* queue队列容器
+* priority_queue优先队列容器
+* stack栈容器
+* map映射表容器
+* deque双端队列容器
 
 
 # string库函数总结<br>
@@ -494,6 +495,15 @@ int main()
     }
 }
 ```
+
+# List双向带头循环链表<br>
+如果是一个插入和删除较多的线性表，使用数组的话很耗时间，容易超时，这时候需要使用到链表来存储了。<br>
+
+
+
+
+
+
 # 集合set<br>
 通俗来讲，就是由一些不重复的数据组成的，比如{1,2,3}是集合，{1，1，2，3}不是集合。<br>
 使用set集合需要加上`include<set>`头文件。<br>
