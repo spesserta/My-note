@@ -464,15 +464,131 @@ inner join [Rank] on People.RankId=[Rank].RankId
 # 子查询
 
 
+# 三范式
+
+## 1、第一范式：
+>属性具有原子性，不可以再分解
+>例如家乡这一栏填的江西省赣州市瑞金市，是不满足第一范式的，因为地址仍然可以进行分割
+>改的话就将省、市、区单独为一个属性
 
 
+```sql
+-定义一个数据表
+create table Student
+(
+Id varchar (20) primary key ,
+Name varchar(20) not null ,
+Phone varchar(20) not null
+)
+-插入数据
+insert into Student(Id ,Name,Phone)
+values('001','小明','电话18270723129，QQ 18270723129')
+-很明显插入的数据不符合第一范式，因为电话这栏有电话号码和qq，这个属性值是可以分割的
+-修改方式如下
+create table Student
+(
+Id varchar (20) primary key ,
+Name varchar(20) not null ,
+Phone varchar(20) not null,
+QQ varchar(20) not null
+)
+-这样联系方式就是不可分割的最小单元了
+
+```
+##2、第二范式
+
+>第二范式是在第一范式的基础上建立起来的，要求数据库中的每一个实例或记录必须可以被唯一的区分
+>比如需要存储用户和权限，将用户id和角色id作为主键，可以存，但是不符合第二范式
+>解决方法就是将第一个Id和第二个Id单独为一个表，然后用中间表进行关联即可
 
 
+## 3、第三范式
+
+>第三范式就是在第二范式的基础上建立起来的，要求一个关系中不包含已在其他关系已经包含的非主关键字信息
+>例如一个学生表中有学生的id、姓名、性别，id为主键。那么在成绩表中不能出现学生姓名和学生性别，否则会造成数据冗余
+
+# 视图
+
+>可以理解成虚拟表，在数据表中的基础上显示从专门的数据
+
+```sql
+
+-显示卡号、身份证、姓名、钱数
+select CNo 卡号, Cod 身份证, Mon 钱数 from BankCard
+inner join Account ont BankCard.Account=AccountInfo.Account
+
+-用视图显示
+create view 视图名
+as 
+select CNo 卡号, Cod 身份证, Mon 钱数 from BankCard
+inner join Account ont BankCard.Account=AccountInfo.Account
+
+-因此视图的代码就是在普通查询语言的基础上加上create view 视图名 as就行了
+
+```
+
+# 变量
+
+## 信息打印
+>类似于C语言的输出语句
+
+```sql
+print 'hellosql'   -输出hellosql
+```
+
+## 变量
+
+* 局部变量：以@开头，先声明再赋值
+* 全局变量：以@@开头，由系统定义和维护，只读的，要用的话可以去查有什么变量
+
+```sql
+
+-定义一个局部变量并且给它赋值并输出
+declare @str varchar(20)  -定义
+set @str = 'i like sql'   -赋值
+print @str                -输出
+
+```
+
+# 三大结构
 
 
+# 触发器
+
+>触发器就是当发生了一件事情，就马上发生另外一个事情
+
+* 事前触发器： Instead of 事情将要发生时发生
+* 事后触发器： After 事情已经发生后发生
 
 
+```sql
+create trigger trg_after_order_insert  -创建一个触发器，名字叫trg_after_order_insert
+on orders  -在orders表中
+after insert  -在插入事后发生
+as  
+begin  -事情发生后开始执行以下语句
+    INSERT INTO order_logs (order_id, log_datetime, action)  
+    SELECT i.order_id, GETDATE(), 'INSERT'  
+    FROM inserted i;  
+end;   -语句结束
 
+```
+
+```sql
+create trigger trgInsteadOfEmployeeInsert   -创建一个触发器，名字叫trgInsteadOfEmployeeInsert
+on vw_EmployeeSummary  -在vw_EmployeeSummary表中
+instead of INSERT   -在将要插入时发生
+AS  
+BEGIN   -开始
+    -- 假设 vw_EmployeeSummary 视图至少包含 EmployeeID, FirstName, LastName  
+    INSERT INTO Employees (EmployeeID, FirstName, LastName)  
+    SELECT i.EmployeeID, i.FirstName, i.LastName  
+    FROM inserted i;  
+
+END;  -结束
+```
+
+# 存储过程
 
 
 
