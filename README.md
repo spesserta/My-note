@@ -1,5 +1,5 @@
 - 👋 Hi, I’m @spesserta
-- 👀 I’m interested in play games and code
+- 👀 This is my learning note
 - 🌱 I’m currently learning c plus plus
 - 💞️ I’m looking to collaborate on NULL
 - 📫 How to reach me ... My email box :2878225574@qq.com or feiw7993@gmail.com
