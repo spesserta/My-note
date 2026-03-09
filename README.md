@@ -95,20 +95,55 @@ int main() {
 ### 此真初学课程呼？真天书也！吾已红温！
 ### 既习之罔也，何不先看代码？以观其行呼？吾有一书，可救汝之水火！名曰[算法设计与分析](算法)
 
+<img width="1080" height="1426" alt="image" src="https://github.com/user-attachments/assets/f12c3930-09d9-479e-8115-e8fa08cda57d" />
 
 
+### 学习二叉树？三叉树？完全二叉树？平衡二叉树？红黑树？此乃不可描树！B树？吾心中有点B树
+### 射友！数据结构，坑鲨我也！可有良计？
+### CSDN及通义千问可解君愁呼！
+### 数据结构已毕，实验室可有兴趣？久仰大名，有幸相会，今有一路，痛陈利害，提升能力，气魄豪迈，团体竞技，同仇敌忾，这届开始，有你参赛！
+### 何为蒜法竞赛？
+### 蒜法入门，欲练此功，必先自攻，摒弃杂念，才能成功！
+### 此实难呼？
+```
+//递归
+//贪心
+//搜索
+//动态规划
+//背包
+//分治
+//枚举
+//排序
+//数论
+//图论
+....无穷无尽也，简单入门，快速升天
+```
+### 光学不练，是假把式，速速刷题，才为正道，[洛谷平台](https://www.luogu.com.cn/)，助汝升天
+### 功法已成，校队集结，比赛现场，既类人群星闪耀之时
+
+<img width="1916" height="951" alt="image" src="https://github.com/user-attachments/assets/d9be02cf-0b31-4d42-b4ab-5435c474dcfd" />
 
 
+```cpp
+#include<bist/stdc++.h>
 
+int ans;
 
+int a[10000000000000005]
 
+for(int a=1;a<n;a++)
+ for(int a=1;a<n;a++)
+  for(int a=1;a<n;a++)
+   for(int a=1;a<n;a++)
+    for(int a=1;a<n;a++)
+     for(int a=1;a<n;a++)
+        //awwawedq
 
+//?????这题诗人？
 
+freopen("C:\\windows\\System32\\test.txt","w",stdout);
 
-
-
-
-
+```
 
 
 
