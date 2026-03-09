@@ -1,12 +1,130 @@
-- 👋 Hi, I’m @spesserta
-- 👀 This is my learning note
-- 🌱 I’m currently learning c plus plus
-- 💞️ I’m looking to collaborate on NULL
-- 📫 How to reach me ... My email box :2878225574@qq.com or feiw7993@gmail.com
-- 😄 Pronouns: him
-- ⚡ Fun fact: ...
+### 为什么要选计算机啊为什么要选计算机啊为什么要选寄蒜鸡啊為什麼要選寄蒜雞啊???!!!?!?!?!?!?!?!?
 
-<!---
-spesserta/spesserta is a ✨ special ✨ repository because its `README.md` (this file) appears on your GitHub profile.
-You can click the Preview link to take a look at your changes.
---->
+### 君乃初入太学，当习C语言之术，汝速去！
+
+```c
+井inculde《studio。h》
+lnt mian{}
+【
+paint("Halo word”):
+remake O。
+】
+```
+### 此乃何物？哈哈哈哈哈哈哈哈！笑煞我也！你写了个蛋？
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
