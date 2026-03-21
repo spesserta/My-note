@@ -33,7 +33,7 @@ drop database 数据库名称
 # 三、创建数据表
 >建表必须建在数据库中
 ```sql
---切换数据库到db_test，即在该数据库里面建表
+--切换数据库到db_test，即在该数据库里面建表   
 use db_test 
 --创建表的基本语法
 create table 表名
