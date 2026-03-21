@@ -5,7 +5,7 @@
 --创建数据库
 create database db_test --数据库名为db_test
 on --数据文件
-(
+(   
 	name='db_test',  --数据文件的逻辑名称
 	filename='D:\DATA\db_test.mdf', --数据文件的物理路径和名称
 	size=5MB, --数据文件的初始大小
