@@ -83,13 +83,15 @@ values('admin','admin','管理员','001')
 >增加
 ```sql
 insert into 表名(列1, 列2, 列3) VALUES (值1, 值2, 值3);
+
 insert into test(UserName, PassWord, NickName) 
 values ('张三', '123456', '小三');
 ```
 
 >删除
 ```sql
-insert into test(UserName, PassWord, NickName) 
+insert into test(UserName, PassWord, NickName)
+
 values ('张三', '123456', '小三');
 ```
 
