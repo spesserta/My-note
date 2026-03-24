@@ -78,7 +78,46 @@ values('admin','admin','管理员','001')
 
 # 三、SQL Sever常用语句
 
->在本文件夹里叫SQL Sever的md格式文件里面。
+>在本文件夹里叫SQL Sever的md格式文件里面。以下是最精炼的语句：<br>
+
+>增加
+```sql
+insert into 表名(列1, 列2, 列3) VALUES (值1, 值2, 值3);
+insert into test(UserName, PassWord, NickName) 
+values ('张三', '123456', '小三');
+```
+
+>删除
+```sql
+insert into test(UserName, PassWord, NickName) 
+values ('张三', '123456', '小三');
+```
+
+>修改
+```sql
+update 表名 set 列1=新值, 列2=新值 WHERE 条件;
+
+update test set PassWord='654321' WHERE UserName='张三';
+
+```
+
+
+>查找
+```sql
+-- 查询所有列
+select * from 表名;
+
+-- 查询指定列
+select 列名1, 列名2 from 表名;
+
+-- 带条件查询
+select * from 表名 WHERE 条件;
+
+select * from test where UserName='张三';
+```
+
+
+
 
 
 # 四、数据库的连接
