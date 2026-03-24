@@ -90,9 +90,9 @@ values ('张三', '123456', '小三');
 
 >删除
 ```sql
-insert into test(UserName, PassWord, NickName)
+delete from 表名 WHERE 条件;
 
-values ('张三', '123456', '小三');
+delete from test WHERE UserName='张三';
 ```
 
 >修改
