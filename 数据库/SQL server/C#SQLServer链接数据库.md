@@ -259,18 +259,502 @@ namespace SQLtest
 
 
 
+# 五、SQL的封装
+
+>C#连接数据库的操作非常重复固定，适合封装成一个单独的方法
+
+```sql
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+// 引入SQL Server数据库操作核心命名空间
+using System.Data.SqlClient;
+// 引入数据集合（DataSet/DataTable）相关命名空间
+using System.Data;
+
+namespace SQLtest
+{
+    internal class Program
+    {
+        static void Main(string[] args)
+        {
+            //设置SQL语句(增加)
+            string UserName = "111";
+            string PassWord = "111";
+            string NickName = "111";
+            string ID = "111";
+            string insertSQL = $"insert into test values('{UserName}','{PassWord}','{NickName}','{ID}')";
+            int count1 = EditData(insertSQL);
+            if (count1 <= 0)
+            {
+                Console.WriteLine("新增数据失败！");
+            }
+            else
+            {
+                Console.WriteLine($"新增数据成功！新增了{count1}行");
+            }
 
 
 
+            //设置SQL语句（删除）
+                string deleteSQL = "delete from test where UserName = '111'";
+            int count2 = EditData(deleteSQL);
+            if (count2 <= 0)
+            {
+                Console.WriteLine("删除数据失败！");
+            }
+            else
+            {
+                Console.WriteLine($"删除数据成功！删除了{count2}行");
+            }
+
+
+            //设置SQL语句（修改）
+            string editSQL = "update test set UserName = '2111', PassWord='9855' where UserName = '211'";
+            int count3 = EditData(editSQL);
+            if (count3 <= 0)
+            {
+                Console.WriteLine("修改数据失败！");
+            }
+            else
+            {
+                Console.WriteLine($"修改数据成功！修改了{count3}行");
+            }
+
+
+            //设置SQL语句（查找）
+            string searchSQL = "select * from test";
+            DataTable dt = SelectData(searchSQL);
+            for(int i = 0; i < dt.Rows.Count; i++)
+            {
+                Console.WriteLine($"{dt.Rows[i]["UserName"]}  {dt.Rows[i]["PassWord"]}  {dt.Rows[i]["NickName"]}  {dt.Rows[i]["ID"]}");
+            }
+            
+
+        }
+        public static int EditData(string sql)  //外部传入sql语句（增删改）
+        {
+            //连接数据库
+            SqlConnection conn = new SqlConnection();
+            //创建连接对象，指定数据库位置
+            conn.ConnectionString = @"Server = (local)\SQLEXPRESS ; Database=awa ; Trusted_Connection=true";
+            conn.Open();
+            //执行SQL语句
+            SqlCommand cmd = new SqlCommand(sql, conn);
+            int count = cmd.ExecuteNonQuery();
+            //关闭数据库返回影响行数
+            conn.Close();
+            return count;
+
+        }
+        public static DataTable SelectData(string sql) //外部传入sql语句（查询）返回值是表格类型
+        {
+            //连接数据库
+            SqlConnection conn = new SqlConnection();
+            //创建连接对象，指定数据库位置
+            conn.ConnectionString = @"Server = (local)\SQLEXPRESS ; Database=awa ; Trusted_Connection=true";
+            conn.Open();
+
+            SqlCommand cmd = new SqlCommand();
+            cmd.Connection = conn;
+            cmd.CommandText = sql;
+
+            SqlDataAdapter adapter = new SqlDataAdapter();
+            adapter.SelectCommand = cmd;
+
+            DataSet ds = new DataSet();
+            adapter.Fill(ds);
+
+            conn.Close();
+
+            DataTable table = ds.Tables[0];
+            return table;
+
+        }
+    }
+}
+```
+
+>根据封装好的两个方法，可以尝试在做一个登陆验证的系统
+
+```c#
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+// 引入SQL Server数据库操作核心命名空间
+using System.Data.SqlClient;
+// 引入数据集合（DataSet/DataTable）相关命名空间
+using System.Data;
+
+namespace SQLtest
+{
+    internal class Program
+    {
+        static void Main(string[] args)
+        {
+            //打印系统基本信息
+            Console.WriteLine("欢迎访问**系统");
+            Console.WriteLine("请在下方输入你的用户名和密码");
+            
+            Console.Write("请输入用户名：");
+            string inputUserName = Console.ReadLine();
+            Console.Write("请输入密码：");
+            string inputPassWord = Console.ReadLine();
+
+            //将用户的输入和数据库中的数据进行比对
+            string sql = "select * from test";
+            DataTable dt = SelectData(sql);
+
+            bool isTrue = false;
+
+            for (int i = 0; i < dt.Rows.Count; i++)
+            {
+                string UserName = dt.Rows[i]["UserName"].ToString();
+                string Password = dt.Rows[i]["Password"].ToString();
+                if (inputUserName == UserName && inputPassWord == Password)
+                {
+                    Console.WriteLine("输入正确！");
+                    isTrue= true;
+                    break;
+                }
+            }
+            if (!isTrue)
+            {
+                Console.WriteLine("输入错误！");
+                Console.ReadKey();
+                return ;
+            }
+            Console.ReadKey();
+
+
+        }
+        public static int EditData(string sql)  //外部传入sql语句（增删改）
+        {
+            //连接数据库
+            SqlConnection conn = new SqlConnection();
+            //创建连接对象，指定数据库位置
+            conn.ConnectionString = @"Server = (local)\SQLEXPRESS ; Database=awa ; Trusted_Connection=true";
+            conn.Open();
+            //执行SQL语句
+            SqlCommand cmd = new SqlCommand(sql, conn);
+            int count = cmd.ExecuteNonQuery();
+            //关闭数据库返回影响行数
+            conn.Close();
+            return count;
+
+        }
+        public static DataTable SelectData(string sql) //外部传入sql语句（查询）返回值是表格类型
+        {
+            //连接数据库
+            SqlConnection conn = new SqlConnection();
+            //创建连接对象，指定数据库位置
+            conn.ConnectionString = @"Server = (local)\SQLEXPRESS ; Database=awa ; Trusted_Connection=true";
+            conn.Open();
+
+            SqlCommand cmd = new SqlCommand();
+            cmd.Connection = conn;
+            cmd.CommandText = sql;
+
+            SqlDataAdapter adapter = new SqlDataAdapter();
+            adapter.SelectCommand = cmd;
+
+            DataSet ds = new DataSet();
+            adapter.Fill(ds);
+
+            conn.Close();
+
+            DataTable table = ds.Tables[0];
+            return table;
+
+        }
+    }
+}
+```
+
+>上面的代码逻辑是select *将所有数据传过来然后和用户输入的数据一一匹配（如果数据库过大读取过来就占很大开销），还有一种逻辑就是直接将输入的数据拼成SQL语句查询有没有搜到，搜到了一行就表明输入正确。
+
+```sql
+static void Main(string[] args)
+{
+    //打印系统基本信息
+    Console.WriteLine("欢迎访问**系统");
+    Console.WriteLine("请在下方输入你的用户名和密码");
+    
+    Console.Write("请输入用户名：");
+    string inputUserName = Console.ReadLine();
+    Console.Write("请输入密码：");
+    string inputPassWord = Console.ReadLine();
+
+    //将用户的输入和数据库中的数据进行比对
+    string sql = $"select * from test where UserName = '{inputUserName}' and PassWord = '{inputPassWord}'";
+    DataTable dt = SelectData(sql);
+    if(dt.Rows.Count > 0 )
+    {
+        Console.WriteLine("用户名和密码正确！");
+    }
+    else
+    {
+        Console.WriteLine("用户名和密码不正确！");
+    }
+   
+    Console.ReadKey();
+
+}
+```
+>注意了where这里必须有个参数是主键，否则查出多个相同的数据那就冲突了<br>
+>登录完后假设还需要显示出所有用户的用户名和昵称，并且输入密码失败后需要重新输入（用死循环），代码修改如下：
+
+```c#
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+// 引入SQL Server数据库操作核心命名空间
+using System.Data.SqlClient;
+// 引入数据集合（DataSet/DataTable）相关命名空间
+using System.Data;
+
+namespace SQLtest
+{
+    internal class Program
+    {
+        static void Main(string[] args)
+        {
+            //打印系统基本信息
+            Console.WriteLine("欢迎访问**系统");
+            Console.WriteLine("请在下方输入你的用户名和密码");
+
+            string inputUserName;
+            string inputPassWord;
+            string sql;
+            DataTable dt;
+            while (true)
+            {
+                Console.Write("请输入用户名：");
+                inputUserName = Console.ReadLine();
+                Console.Write("请输入密码：");
+                inputPassWord = Console.ReadLine();
+                //将用户的输入和数据库中的数据进行比对
+                sql = $"select * from test where UserName = '{inputUserName}' and PassWord = '{inputPassWord}'";
+                dt = SelectData(sql);
+                if (dt.Rows.Count > 0)
+                {
+                    Console.WriteLine("用户名和密码正确！");
+                    break;
+                }
+                else
+                {
+                    Console.WriteLine("用户名和密码不正确！");
+                }
+            }
+            Console.WriteLine($"欢迎回来，{dt.Rows[0]["UserName"]}先生！");
+
+            string sqlAllusers = "select * from test";
+            DataTable tableAllUsers = SelectData(sqlAllusers);
+            Console.WriteLine("用户名  昵称");
+            for(int i = 0; i < tableAllUsers.Rows.Count; i++)
+            {
+                Console.WriteLine($"{tableAllUsers.Rows[i]["UserName"]}  {tableAllUsers.Rows[i]["NickName"]}");
+            }
 
 
 
+        }
+        public static int EditData(string sql)  //外部传入sql语句（增删改）
+        {
+            //连接数据库
+            SqlConnection conn = new SqlConnection();
+            //创建连接对象，指定数据库位置
+            conn.ConnectionString = @"Server = (local)\SQLEXPRESS ; Database=awa ; Trusted_Connection=true";
+            conn.Open();
+            //执行SQL语句
+            SqlCommand cmd = new SqlCommand(sql, conn);
+            int count = cmd.ExecuteNonQuery();
+            //关闭数据库返回影响行数
+            conn.Close();
+            return count;
+
+        }
+        public static DataTable SelectData(string sql) //外部传入sql语句（查询）返回值是表格类型
+        {
+            //连接数据库
+            SqlConnection conn = new SqlConnection();
+            //创建连接对象，指定数据库位置
+            conn.ConnectionString = @"Server = (local)\SQLEXPRESS ; Database=awa ; Trusted_Connection=true";
+            conn.Open();
+
+            SqlCommand cmd = new SqlCommand();
+            cmd.Connection = conn;
+            cmd.CommandText = sql;
+
+            SqlDataAdapter adapter = new SqlDataAdapter();
+            adapter.SelectCommand = cmd;
+
+            DataSet ds = new DataSet();
+            adapter.Fill(ds);
+
+            conn.Close();
+
+            DataTable table = ds.Tables[0];
+            return table;
+
+        }
+    }
+}
+```
+
+>现在需求是增加一列性别，就需要在SQL SERVER中手动增加一列，并且在用户登陆完成的时候检测性别是否为空，空的话就提醒录入性别。
+
+```c#
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+// 引入SQL Server数据库操作核心命名空间
+using System.Data.SqlClient;
+// 引入数据集合（DataSet/DataTable）相关命名空间
+using System.Data;
+
+namespace SQLtest
+{
+    internal class Program
+    {
+        static void Main(string[] args)
+        {
+            //打印系统基本信息
+            Console.WriteLine("欢迎访问**系统");
+            Console.WriteLine("请在下方输入你的用户名和密码");
+
+            string inputUserName;
+            string inputPassWord;
+            string sql;
+            DataTable dt;
+            while (true)
+            {
+                Console.Write("请输入用户名：");
+                inputUserName = Console.ReadLine();
+                Console.Write("请输入密码：");
+                inputPassWord = Console.ReadLine();
+                //将用户的输入和数据库中的数据进行比对
+                sql = $"select * from test where UserName = '{inputUserName}' and PassWord = '{inputPassWord}'";
+                dt = SelectData(sql);
+                if (dt.Rows.Count > 0)
+                {
+                    Console.WriteLine("用户名和密码正确！");
+                    break;
+                }
+                else
+                {
+                    Console.WriteLine("用户名和密码不正确！");
+                }
+            }
+            Console.WriteLine($"欢迎回来，{dt.Rows[0]["UserName"]}先生！");
+
+            //判断用户的性别是否更新
+            string gender = dt.Rows[0]["性别"].ToString();
+            if(string.IsNullOrEmpty(gender))
+            {
+                Console.WriteLine($"尊敬的{dt.Rows[0]["NickName"]},您的性别是空，需要您输入性别：");
+                Console.WriteLine("请在下方输入：");
+                Console.WriteLine("性别选项：1男   2女");
+                string inputGender = Console.ReadLine();
+                if (inputGender == "1") gender = "男";
+                else if (inputGender == "2") gender = "女";
+                else Console.WriteLine("你傻逼吧，让你输入1和2");
+            }
+
+            //将输入的性别更新到数据库（修改操作）
+            string UpdateGenderSQL = $"update test set 性别= '{gender}' where UserName = '{dt.Rows[0]["UserName"]}'";
+            int ii = EditData(UpdateGenderSQL);
+            if (ii <= 0)
+            {
+                Console.WriteLine("更新性别失败！本次不收集了下次再收集");
+            }
+            else
+            {
+                Console.WriteLine("更新性别成功！");
+            }
+
+            //显示所有用户的信息
+            string sqlAllusers = "select * from test";
+            DataTable tableAllUsers = SelectData(sqlAllusers);
+            Console.WriteLine("用户名  昵称");
+            for(int i = 0; i < tableAllUsers.Rows.Count; i++)
+            {
+                Console.WriteLine($"{tableAllUsers.Rows[i]["UserName"]}  {tableAllUsers.Rows[i]["性别"]}");
+            }
 
 
 
+        }
+        public static int EditData(string sql)  //外部传入sql语句（增删改）
+        {
+            //连接数据库
+            SqlConnection conn = new SqlConnection();
+            //创建连接对象，指定数据库位置
+            conn.ConnectionString = @"Server = (local)\SQLEXPRESS ; Database=awa ; Trusted_Connection=true";
+            conn.Open();
+            //执行SQL语句
+            SqlCommand cmd = new SqlCommand(sql, conn);
+            int count = cmd.ExecuteNonQuery();
+            //关闭数据库返回影响行数
+            conn.Close();
+            return count;
+
+        }
+        public static DataTable SelectData(string sql) //外部传入sql语句（查询）返回值是表格类型
+        {
+            //连接数据库
+            SqlConnection conn = new SqlConnection();
+            //创建连接对象，指定数据库位置
+            conn.ConnectionString = @"Server = (local)\SQLEXPRESS ; Database=awa ; Trusted_Connection=true";
+            conn.Open();
+
+            SqlCommand cmd = new SqlCommand();
+            cmd.Connection = conn;
+            cmd.CommandText = sql;
+
+            SqlDataAdapter adapter = new SqlDataAdapter();
+            adapter.SelectCommand = cmd;
+
+            DataSet ds = new DataSet();
+            adapter.Fill(ds);
+
+            conn.Close();
+
+            DataTable table = ds.Tables[0];
+            return table;
+
+        }
+    }
+}
+```
+
+>在实际开发中，数据库里面的密码需要加密，不然一被入侵就明文了，可以使用MD5加密运算，在输入密码的时候会对其进行一个散列值的计算从而解密
 
 
 
+>还有一种多语言的情形，可以通过选择中英文+if判断实现
+
+<img width="1231" height="359" alt="image" src="https://github.com/user-attachments/assets/c6535a2c-fdee-4085-b9ec-beab0d16d599" />
+
+>当然也可以在数据库中将“男女”用数字1和数字2表示，然后读取过来再判断语言即可
+
+
+<img width="639" height="357" alt="image" src="https://github.com/user-attachments/assets/7838a4a5-29ad-4fa3-bd69-ee9260e2c8fd" />
+
+
+>但是以上方法在后期新增语言的时候就麻烦了，如果改成配置文件的形式，就可以解决这个问题
+
+<img width="1291" height="670" alt="image" src="https://github.com/user-attachments/assets/3de8ef09-f687-4a15-87b2-822719cf61c2" />
+
+<img width="953" height="474" alt="image" src="https://github.com/user-attachments/assets/ea2bef41-64a8-4ee5-945f-7b02c7453d17" />
 
 
 
