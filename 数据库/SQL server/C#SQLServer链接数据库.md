@@ -742,26 +742,314 @@ namespace SQLtest
 
 >还有一种多语言的情形，可以通过选择中英文+if判断实现
 
-<img width="1231" height="359" alt="image" src="https://github.com/user-attachments/assets/c6535a2c-fdee-4085-b9ec-beab0d16d599" />
+```c#
+//最开始的时候进行语言选择
+Console.WriteLine("1：中文  2：英文");
+string inputLang=Console.ReadLine();
+int lang = 1;
+if(inputLang=="2")  lang = 2;   //输入是2的时候就切换成英文模式
+```
+```c#
+//显示所有用户的信息
+            string sqlAllusers = "select * from test";
+            DataTable tableAllUsers = SelectData(sqlAllusers);
+            Console.WriteLine("用户名 昵称 性别");
+            for (int i = 0; i < tableAllUsers.Rows.Count; i++)
+            {
+                string gender = tableAllUsers.Rows[i]["性别"].ToString();
+                if (lang == 2)
+                {
+                    if (gender == "男") 
+                        gender = "Male";
+                    else if (gender == "女") 
+                        gender = "Female";
+                }
+                Console.WriteLine($"{tableAllUsers.Rows[i]["UserName"]}  {tableAllUsers.Rows[i]["NickName"]}  {gender}");
+            }
+```
 
->当然也可以在数据库中将“男女”用数字1和数字2表示，然后读取过来再判断语言即可
+>当然也可以在数据库中将“男女”用数字1和数字2表示，然后读取过来再判断语言即可，修改一下输入性别的逻辑就行
 
+```c#
+ //判断用户的性别是否更新
+ string genderForSQL = dt.Rows[0]["性别"].ToString();
+ if (string.IsNullOrEmpty(genderForSQL))
+ {
+     Console.WriteLine($"尊敬的{dt.Rows[0]["NickName"]},您的性别是空，需要您输入性别：");
+     Console.WriteLine("请在下方输入：");
+     Console.WriteLine("性别选项：1男   2女");
+     string inputGender = Console.ReadLine();
+     if (inputGender == "1") genderForSQL = "1";
+     else if (inputGender == "2") genderForSQL = "2";
+     else Console.WriteLine("你傻逼吧，让你输入1和2");
+ }
+```
 
-<img width="639" height="357" alt="image" src="https://github.com/user-attachments/assets/7838a4a5-29ad-4fa3-bd69-ee9260e2c8fd" />
+<img width="477" height="171" alt="image" src="https://github.com/user-attachments/assets/712c041c-ff77-447d-9670-cf1a34353061" />
+
+```c#
+            //显示所有用户的信息
+            string sqlAllusers = "select * from test";
+            DataTable tableAllUsers = SelectData(sqlAllusers);
+            Console.WriteLine("用户名 昵称 性别");
+            for (int i = 0; i < tableAllUsers.Rows.Count; i++)
+            {
+                string gender1 = tableAllUsers.Rows[i]["性别"].ToString().Trim(); //注意要Trim一下删掉多余空格
+                if (lang == 1)
+                {
+                    if (gender1 == "1") 
+                        gender1 = "男";
+                    else if (gender1 == "2") 
+                        gender1 = "女";
+                }
+                if (lang == 2)
+                {
+                    if (gender1 == "1")
+                        gender1 = "Male";
+                    else if (gender1 == "2")
+                        gender1 = "Female";
+                }
+                Console.WriteLine($"{tableAllUsers.Rows[i]["UserName"]}  {tableAllUsers.Rows[i]["NickName"]}  {gender1}");
+            }
+```
 
 
 >但是以上方法在后期新增语言的时候就麻烦了，如果改成配置文件的形式，就可以解决这个问题
 
-<img width="1291" height="670" alt="image" src="https://github.com/user-attachments/assets/3de8ef09-f687-4a15-87b2-822719cf61c2" />
-
-<img width="953" height="474" alt="image" src="https://github.com/user-attachments/assets/ea2bef41-64a8-4ee5-945f-7b02c7453d17" />
+<img width="876" height="515" alt="image" src="https://github.com/user-attachments/assets/9d845b8e-083c-4133-893c-d8a14ccec1fe" />
 
 
+```c#
+infoHelper infoM = new infoHelper();
+//最开始的时候进行语言选择
+Console.WriteLine("1：中文  2：英文");
+string inputLang=Console.ReadLine();
+int lang = 1;
+if(inputLang=="2")  lang = 2;   //输入是2的时候就切换成英文模式
+
+if (lang == 1)
+{
+    infoM.Gender1 = "男";
+    infoM.Gender2 = "女";
+}
+else if (lang == 2)  
+{
+    infoM.Gender1 = "Male";
+    infoM.Gender2 = "Female";
+}
+```
+
+```c#
+//显示所有用户的信息
+string sqlAllusers = "select * from test";
+DataTable tableAllUsers = SelectData(sqlAllusers);
+Console.WriteLine("用户名 昵称 性别");
+for (int i = 0; i < tableAllUsers.Rows.Count; i++)
+{
+    string gender1 = tableAllUsers.Rows[i]["性别"].ToString().Trim(); //注意要Trim一下删掉多余空格
+    if (gender1 == "1")
+    {
+        gender1 = infoM.Gender1;
+    }
+    else if (gender1 == "2")
+    {
+        gender1 = infoM.Gender2;
+    }
+
+    Console.WriteLine($"{tableAllUsers.Rows[i]["UserName"]}  {tableAllUsers.Rows[i]["NickName"]}  {gender1}");
+}
+```
+这样的话如果要新增语言，那么直接改上面的if lang == ?的这个逻辑就行 
+
+<img width="920" height="516" alt="image" src="https://github.com/user-attachments/assets/d3f04fce-c244-4012-988a-fde44eb894ba" />
+
+```c#
+////文件1
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+
+namespace SQLtest
+{
+    public class infoHelper  //用来支持多语言的类（注意要public）
+    {
+        public static string Gender1 {  get; set; }  //男
+        public static string Gender2 { get;  set; }  //女
+
+        public static string Infor1 {  get; set; }  //语句1
+        public static string Infor2 {  get; set; }  //语句2
+        public static string Infor3 { get; set; }   //语句3
+
+    }
+}
+////文件2
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+// 引入SQL Server数据库操作核心命名空间
+using System.Data.SqlClient;
+// 引入数据集合（DataSet/DataTable）相关命名空间
+using System.Data;
+using System.Runtime.InteropServices;
+
+namespace SQLtest
+{
+    internal class Program
+    {
+        static void Main(string[] args)
+        {
+
+            //最开始的时候进行语言选择
+            Console.WriteLine("1：中文  2：英文");
+            string inputLang=Console.ReadLine();
+            int lang = 1;
+            if(inputLang=="2")  lang = 2;   //输入是2的时候就切换成英文模式
+
+            if (lang == 1)  //简体中文
+            {
+                infoHelper.Gender1 = "男";
+                infoHelper.Gender2 = "女";
+                infoHelper.Infor1 = "欢迎访问**系统";
+            }
+            else if (lang == 2)  //英文
+            {
+                infoHelper.Gender1 = "Male";
+                infoHelper.Gender2 = "Female";
+                infoHelper.Infor1 = "Welcome to ** system!";
+            }else if (lang == 3)  //繁体中文
+            {
+                infoHelper.Gender1 = "男（繁体）";
+                infoHelper.Gender2 = "女（繁体）";
+                infoHelper.Infor1 = "欢迎访问**系统（繁体）";
+            }
+ 
+
+            //打印系统基本信息
+            Console.WriteLine(infoHelper.Infor1);   //将写死的中文可以用变量换掉
+            Console.WriteLine("请在下方输入你的用户名和密码");
+
+            string inputUserName;
+            string inputPassWord;
+            string sql;
+            DataTable dt;
+            while (true)
+            {
+                Console.Write("请输入用户名：");
+                inputUserName = Console.ReadLine();
+                Console.Write("请输入密码：");
+                inputPassWord = Console.ReadLine();
+                //将用户的输入和数据库中的数据进行比对
+                sql = $"select * from test where UserName = '{inputUserName}' and PassWord = '{inputPassWord}'";
+                dt = SelectData(sql);
+                if (dt.Rows.Count > 0)
+                {
+                    Console.WriteLine("用户名和密码正确！");
+                    break;
+                }
+                else
+                {
+                    Console.WriteLine("用户名和密码不正确！");
+                }
+            }
+            Console.WriteLine($"欢迎回来，{dt.Rows[0]["UserName"]}先生！");
+
+            //判断用户的性别是否更新
+            string genderForSQL = dt.Rows[0]["性别"].ToString();
+            if (string.IsNullOrEmpty(genderForSQL))
+            {
+                Console.WriteLine($"尊敬的{dt.Rows[0]["NickName"]},您的性别是空，需要您输入性别：");
+                Console.WriteLine("请在下方输入：");
+                Console.WriteLine("性别选项：1男   2女");
+                string inputGender = Console.ReadLine();
+                if (inputGender == "1") genderForSQL = "1";
+                else if (inputGender == "2") genderForSQL = "2";
+                else Console.WriteLine("你傻逼吧，让你输入1和2");
+            }
+
+            //将输入的性别更新到数据库（修改操作）
+            string UpdateGenderSQL = $"update test set 性别= '{genderForSQL}' where UserName = '{dt.Rows[0]["UserName"]}'";
+            int ii = EditData(UpdateGenderSQL);
+            if (ii <= 0)
+            {
+                Console.WriteLine("更新性别失败！本次不收集了下次再收集");
+            }
+            else
+            {
+                Console.WriteLine("更新性别成功！");
+            }
+
+            //显示所有用户的信息
+            string sqlAllusers = "select * from test";
+            DataTable tableAllUsers = SelectData(sqlAllusers);
+            Console.WriteLine("用户名 昵称 性别");
+            for (int i = 0; i < tableAllUsers.Rows.Count; i++)
+            {
+                string gender1 = tableAllUsers.Rows[i]["性别"].ToString().Trim(); //注意要Trim一下删掉多余空格
+                if (gender1 == "1")
+                {
+                    gender1 = infoHelper.Gender1;
+                }
+                else if (gender1 == "2")
+                {
+                    gender1 = infoHelper.Gender2;
+                }
+
+                Console.WriteLine($"{tableAllUsers.Rows[i]["UserName"]}  {tableAllUsers.Rows[i]["NickName"]}  {gender1}");
+            }
 
 
 
+        }
+        public static int EditData(string sql)  //外部传入sql语句（增删改）
+        {
+            //连接数据库
+            SqlConnection conn = new SqlConnection();
+            //创建连接对象，指定数据库位置
+            conn.ConnectionString = @"Server = (local)\SQLEXPRESS ; Database=awa ; Trusted_Connection=true";
+            conn.Open();
+            //执行SQL语句
+            SqlCommand cmd = new SqlCommand(sql, conn);
+            int count = cmd.ExecuteNonQuery();
+            //关闭数据库返回影响行数
+            conn.Close();
+            return count;
 
+        }
+        public static DataTable SelectData(string sql) //外部传入sql语句（查询）返回值是表格类型
+        {
+            //连接数据库
+            SqlConnection conn = new SqlConnection();
+            //创建连接对象，指定数据库位置
+            conn.ConnectionString = @"Server = (local)\SQLEXPRESS ; Database=awa ; Trusted_Connection=true";
+            conn.Open();
 
+            SqlCommand cmd = new SqlCommand();
+            cmd.Connection = conn;
+            cmd.CommandText = sql;
+
+            SqlDataAdapter adapter = new SqlDataAdapter();
+            adapter.SelectCommand = cmd;
+
+            DataSet ds = new DataSet();
+            adapter.Fill(ds);
+
+            conn.Close();
+
+            DataTable table = ds.Tables[0];
+            return table;
+
+        }
+    }
+}
+```
+
+>综上所述，可以将里面的语句用Infor变量全部替换掉 awa
+
+<img width="1513" height="883" alt="image" src="https://github.com/user-attachments/assets/58d6c914-64fb-49c1-a045-452d0ac2aa21" />
 
 
 
