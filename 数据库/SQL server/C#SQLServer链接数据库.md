@@ -1049,7 +1049,99 @@ namespace SQLtest
 
 >综上所述，可以将里面的语句用Infor变量全部替换掉 awa
 
+
 <img width="1513" height="883" alt="image" src="https://github.com/user-attachments/assets/58d6c914-64fb-49c1-a045-452d0ac2aa21" />
+
+
+>现在又有新需求了，需要加一个成绩，但是呢一个人的成绩它也不是固定不变的，需要再加上对应的时间，先建表
+
+<img width="726" height="466" alt="image" src="https://github.com/user-attachments/assets/cfb21c36-db0c-444a-84cb-508bbac62e8b" />
+
+
+>建表之后呢在对应的C#语句中添加一个对应的UserScoreTable类，类中存放调用数据库时调出来的数据，再添加一个UserScoreOperation类来存放对数据库的操作方法
+
+```c#
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+
+namespace SQLtest
+{
+    internal class UserScoreTable
+    {
+        public string UserName { get; set; }
+        public float Chinese { get; set; }   //为了方便修改成绩，使用float类型
+        public float Maths { get; set; }
+        public float English { get; set; }
+        public DateTime Datetime { get; set; }
+
+    }
+}
+```
+```c#
+using System;
+using System.Collections.Generic;
+using System.Data;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+// 引入SQL Server数据库操作核心命名空间
+using System.Data.SqlClient;
+// 引入数据集合（DataSet/DataTable）相关命名空间
+using System.Data;
+
+namespace SQLtest
+{
+    public class UserScoreOperation
+    {
+        public List<UserScoreTable> GetUserScoreByUserName(string userName)  //通过用户名来查询成绩
+        {
+            string sqlUserScores = $"select * from score where UserName = '{userName}'";
+            DataTable UserSores = SQLHelp.SelectData(sqlUserScores);
+
+            //转换成集合对象
+            List<UserScoreTable> users = new List<UserScoreTable>();
+            for (int i = 0; i < UserSores.Rows.Count; i++)
+            {
+                UserScoreTable model = UserScoreOperation.DataRowToUserScoreModel(UserSores.Rows[i]);
+                users.Add(model);
+            }
+            return users;
+        }
+
+        internal static UserScoreTable DataRowToUserScoreModel(DataRow currentRow)
+        {
+            UserScoreTable model = new UserScoreTable();
+            model.UserName = currentRow["UserName"].ToString();
+            model.Chinese = float.Parse(currentRow["语文成绩"].ToString());
+            model.Maths = float.Parse(currentRow["数学成绩"].ToString());
+            model.English = float.Parse(currentRow["英语成绩"].ToString());
+            model.Datetime = DateTime.Parse(currentRow["时间"].ToString());
+            return model;
+
+        }
+    }
+
+}
+
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
