@@ -43,7 +43,16 @@ create table 表名
   .....
   --字段n 数据类型
 )
+
 ```
+
+>-约束：check(** == '' or ** == '' )表示多个条件约束，unique表示唯一约束
+>-主键：primary key  ，默认唯一,自己表的唯一身份证，用来唯一标识自己这一行
+>-非空：not null
+>-默认值：default(**)
+>-外键：Foreign Key ,表示引用别人表的主键，用来建立两张表之间的关系
+>-引用外键：reference
+
 >例如我要建立一个部门表、职级表、员工表
 ```sql   
 create table Department --创建部门表
@@ -68,7 +77,7 @@ create table People --创建职级表
 (
   DeId int references Department(DeId),--部门外键，表示在这里使用部门表的主键
   RankId int references [Rank](RankId) not null,--职级外键，表示在这里使用职级表的主键
-  PeId int primary key identity, --id
+  PeId int primary key identity(1,1), --id
   PeNa varchar(50) not null,   --姓名
   PeSex nvarchar(1) check(PeSex='男' or PeSex='女') , --性别
   --添加了一个check约束，规定输入值只能是男或者女
@@ -95,7 +104,7 @@ create table People --创建职级表
 * bigint/int/smallint/tinyint 表示整型，从大到小
 * float/real 表示浮点数
 
-# 四、修改表的结构
+# 四、修改表的结构（alter table）
 ## 1、添加列
 ```sql
 alter table 表名 add 新列名 数据类型
