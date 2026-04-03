@@ -151,6 +151,66 @@ namespace SQLtest
 <img width="615" height="307" alt="image" src="https://github.com/user-attachments/assets/0f2ac6b2-6037-40dc-b379-bbdd1fd2c1bc" />
 
 
+### 五、使用DataSet和DataAdapter“离线操作”
+
+>DataSet和DataAdapter相当于一个「内存数据库」，里面可以装多张表、关系、约束，断开数据库连接也能随便操作，它们和 DataReader 最大的区别是：DataReader 是「在线只读、只进」的数据流，而 DataSet+DataAdapter 是「离线、可增删改查、可批量更新」的模式，更适合 WinForm/WPF 这类桌面应用的复杂数据交互。
+>使用步骤：<br>
+>- 建立连接：用 SqlConnection 连接数据库
+>- 创建 DataAdapter：配置查询命令（SelectCommand）和连接
+>- 填充 DataSet：调用 adapter.Fill(ds)，自动打开连接、拉取数据、填充到 DataSet，再自动关闭连接
+>- 操作 DataSet + 写回数据库：修改 DataSet 里的数据，调用 adapter.Update(ds) 批量提交修改
+
+
+```c#
+using System;
+using System.Data;
+using System.Data.SqlClient;
+
+namespace SQLtest
+{
+    internal class Program
+    {
+        private static string connStr = "Data Source=DESKTOP-VL906FO\\SQLEXPRESS;Initial Catalog=awa;Integrated Security=True;";
+
+        static void Main(string[] args)
+        {
+            SqlDataAdapter adapter;
+            DataSet ds = new DataSet();
+
+            // --------------------------
+            // 场景1：从数据库拉取数据，填充到 DataSet
+            // --------------------------
+            string selectSql = "SELECT * FROM test";
+            adapter = new SqlDataAdapter(selectSql, connStr);   //从数据库中拉取数据
+
+            adapter.Fill(ds, "test");   //填充到DataSet（DataSet可以填充多个数据表）
+
+            DataTable dt = ds.Tables["test"];  //将DataSet里面的test数据表赋值到DataTable的dt对象中
+            Console.WriteLine("==== 原始数据 ===="); 
+            foreach (DataRow row in dt.Rows)  //foreach遍历数据表
+            {
+                Console.WriteLine($"Id:{row["ID"]}, Name:{row["UserName"]}, NickName:{row["NickName"]}");
+            }
+        }
+    }
+}
+```
+```c#
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
