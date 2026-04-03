@@ -189,13 +189,50 @@ namespace SQLtest
             Console.WriteLine("==== 原始数据 ===="); 
             foreach (DataRow row in dt.Rows)  //foreach遍历数据表
             {
-                Console.WriteLine($"Id:{row["ID"]}, Name:{row["UserName"]}, NickName:{row["NickName"]}");
+                Console.WriteLine($"Id:{row["ID"]}, Name:{row["UserName"]}, NickName:{row["NickName"]} , Sex:{row["Sex"]}");
             }
+
+            // --------------------------
+            // 场景2：修改 DataSet 里的数据（增/删/改）
+            // --------------------------
+            // ① 修改现有数据
+            // 关键：手动给 DataTable 设置主键（注意主键需要自己设置下，因为在拉取数据表的时候只拉取数据不会拉取主键信息）
+            dt.PrimaryKey = new DataColumn[] { dt.Columns["ID"] };
+            DataRow editRow = dt.Rows.Find(1); // 假设Id是主键
+            int num = int.Parse(Console.ReadLine());
+            if (editRow != null)
+            {
+                editRow["Sex"] = num;
+            }
+            // ② 新增一行数据
+            DataRow newRow = dt.NewRow();
+            newRow["ID"] = 4;
+            newRow["UserName"] = "004";
+            newRow["PassWord"] = "123456";
+            newRow["NickName"] = "晓晓";
+            newRow["Sex"] = 1;
+            dt.Rows.Add(newRow);
+            // ③ 删除一行数据
+            DataRow delRow = dt.Rows.Find(2);
+            if (delRow != null)
+            {
+                delRow.Delete();
+            }
+
+            // --------------------------
+            // 场景3：把 DataSet 的修改批量写回数据库
+            // --------------------------
+            // 关键！自动生成增删改命令，不然 Update 会报错
+            SqlCommandBuilder builder = new SqlCommandBuilder(adapter);
+
+            // 批量提交所有修改（自动对比 DataSet 的 RowState）
+            int rowsAffected = adapter.Update(ds, "test");
+            Console.WriteLine($"\n==== 写回数据库成功，影响行数：{rowsAffected} ====");
         }
     }
 }
 ```
-```c#
+
 
 
 
