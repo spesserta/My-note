@@ -174,7 +174,45 @@ namespace ORM
 
 ### 六、实战案例
 
+>好的我们现在需要做一个类似于淘宝商场的控制台应用，包括用户注册，商品信息修改、购物车管理三大模块<br>
+>第一步我们在SQL SERVER中建数据库建数据表
 
+```sql
+--用户信息表
+create table t_user
+(
+   account varchar(50) primary key , --账号
+   [password] varchar(50) ,          --密码
+   name varchar(50)                  --姓名
+)
+go
+-- 插入两个注册用户
+insert t_user values('001','123456','张三'),('002','123456','李四')
+
+--商品信息表
+create table t_goods
+(
+	gid int identity(1,1) primary key , --商品编号
+	gname varchar(50),                  --商品名称
+	[type] varchar(50),                 --商品类型
+	price int,                          --价格
+	sale  int                           --销量
+)
+insert t_goods values  --插入商品信息
+('巧克力' , '零食' , 10 , 0),
+('纯净水' , '饮料' ,  2 , 0)
+
+create table t_shopCar
+(
+	id int identity(1,1) primary key ,
+	account varchar(50) , --用户名称
+	gid int ,             --价格
+	gname varchar(50),    --商品名称
+	price int,            --价格
+	amount int ,          --购买数量
+	[money] int           --小计金额
+)
+```
 
 
 
