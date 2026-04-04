@@ -214,7 +214,68 @@ create table t_shopCar
 )
 ```
 
+>接下来就需要分层了，先根据数据表信息简历Model层
 
+<img width="434" height="213" alt="image" src="https://github.com/user-attachments/assets/72a03445-897c-426d-8687-d76d209ba298" />
+
+```c#
+namespace Model
+{
+    public class goods
+    {
+        public int GId { get; set; }
+        public string GName { get; set; }
+        public string Type { get; set; }
+        public int Price { get; set; }
+        public int Sale { get; set; }
+    }
+}
+```
+```c#
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+
+namespace Model
+{
+    public class shopCar
+    {
+        public int Id { get; set; }
+        public string Account { get; set; }
+        public int GId { get; set; }
+        public string GName { get; set; }
+        public int Price { get; set; }
+        public int Money { get; set; }
+    }
+}
+```
+```c#
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Security.Cryptography.X509Certificates;
+using System.Text;
+using System.Threading.Tasks;
+
+namespace Model
+{
+    public class userInfo
+    {
+            public string account {  get; set; }
+            public string password { get; set; }
+            public string name { get; set; }
+    }
+}
+```
+
+>然后建立DBHelp类放在common层
+
+<img width="407" height="149" alt="image" src="https://github.com/user-attachments/assets/2f20c5d0-b2d7-4c45-9183-c8c084921ad1" />
+
+
+>然后是DAL层
 
 
 
