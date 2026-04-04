@@ -31,25 +31,148 @@ db.Delete(xx);
 <img width="1909" height="862" alt="image" src="https://github.com/user-attachments/assets/03777ec3-e092-42b1-9d74-59e6da600f3d" />
 
 
-好的，现在就可以利用对象的方式来操作员工表了
+好的，现在就可以利用对象的方式来操作员工表了（注意可能要先安装 EF6 NuGet 包）
+
+<img width="689" height="392" alt="image" src="https://github.com/user-attachments/assets/2177e6f7-0c9d-4b1c-b687-00b69c990acd" />
+
+
+### 二、添加数据举例
+```c#
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+
+namespace ORM
+{
+    internal class Program
+    {
+        static void Main(string[] args)
+        {
+            
+            awaEntities db = new awaEntities();  //数据库名称叫awa
+            //创建数据表中的一行（拿来插入的）
+            test t = new test() { ID = 10, UserName = "010", PassWord = "123456", NickName = "笑笑", Sex = 0 };
+            db.test.Add(t);  //将这一行t存入到数据集合中（还没放到数据库）
+            db.SaveChanges(); //保存到SQL SERVER数据库
+            Console.WriteLine("添加完毕");
+
+        }
+    }
+}
+```
+
+<img width="382" height="192" alt="image" src="https://github.com/user-attachments/assets/36981bc3-dcb6-409d-a5a8-4e79f3ac20a4" />
+
+可以发现成功添加
 
 
 
+### 三、删除数据举例
+
+```c#
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+namespace ORM
+{
+    internal class Program
+    {
+        static void Main(string[] args)
+        {
+            awaEntities db = new awaEntities();  //数据库名称叫awa
+            //使用FirstOrDefault来查找第一个满足条件的行，括号里的查找条件用lambda表达式
+            test tDel =  db.test.FirstOrDefault(test => test.ID == 10);  //找ID=10的那行数据，返回值是test类型或者NULL类型
+            if(tDel != null) //找到满足条件的了
+            {
+                db.test.Remove(tDel);
+                Console.WriteLine("删除完毕");
+            }
+            else    //没找到就返回NULL
+            {
+                Console.WriteLine("查无此人");
+            }
+            db.SaveChanges(); //保存到数据库
+            
+        }
+    }
+}
+```
+
+### 四、修改数据举例
+
+```c#
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+namespace ORM
+{
+    internal class Program
+    {
+        static void Main(string[] args)
+        {
+            awaEntities db = new awaEntities();  //数据库名称叫awa
+            test tUpdate = db.test.FirstOrDefault(test => test.ID == 1); //找到ID等于1的那行
+            if(tUpdate != null)
+            {
+                tUpdate.UserName = "001";  //直接通过改对象属性的方式来修改数据表
+                Console.WriteLine("修改成功");
+            }
+            else
+            {
+                Console.WriteLine("查无此人");
+            }
+            db.SaveChanges();
+        }
+    }
+}
+```
+
+### 五、查询数据举例
+
+```c#
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+namespace ORM
+{
+    internal class Program
+    {
+        static void Main(string[] args)
+        {
+            awaEntities db = new awaEntities();  //数据库名称叫awa
+            //基础查询-查询NickName = 小明的行
+            List<test> tSelect =  db.test.Where(test => test.NickName == "小明").ToList();  //找到NickName=小明的行并且转为List类型
+            foreach (test test in tSelect) 
+            {
+                Console.WriteLine($"{test.ID}  {test.UserName}  {test.NickName}  {test.Sex}");
+            }
+            //查询表中一共有多少人
+            //SQL语句 select count(*) from test
+            int num1 = db.test.Count();
+            Console.WriteLine($"总人数：{num1}人");
+            //查询男员工的人数
+            //SQL语句 select count(*) from test where Sex = 1
+            int num2 = db.test.Count(test => test.Sex == 1);
+            Console.WriteLine($"男生有：{num2}人");
+        }
+    }
+}
+
+```
+
+<img width="1023" height="465" alt="image" src="https://github.com/user-attachments/assets/80419f1c-3c81-4b86-bdb4-0aa5d7609f4e" />
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
+### 六、实战案例
 
 
 
