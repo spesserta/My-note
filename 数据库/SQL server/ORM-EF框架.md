@@ -274,6 +274,75 @@ namespace Model
 
 <img width="407" height="149" alt="image" src="https://github.com/user-attachments/assets/2f20c5d0-b2d7-4c45-9183-c8c084921ad1" />
 
+```c#
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using System.Data;
+using System.Data.SqlClient;
+
+namespace Common
+{
+    public class DBHelper
+    {
+        // 数据库连接字符串
+        private static string connStr = "Data Source=DESKTOP-VL906FO\\SQLEXPRESS;Initial Catalog=shizhan;Integrated Security=True;Trust Server Certificate=True";
+
+
+        //执行增删改
+        public static int ExecuteNonQuery(string sql, SqlParameter[] arrP)  
+        {
+            using (SqlConnection con =new SqlConnection(connStr))  //using代码快执行完括号里的自动销毁
+            {
+                con.Open(); //打开数据库连接
+                using (SqlCommand cmd = new SqlCommand(sql ,con))
+                {
+                    if(arrP != null) //执行的就是参数化的SQL指令
+                    {
+                        foreach (SqlParameter param in arrP) //遍历数组的每个元素
+                        {
+                            cmd.Parameters.Add(param);  //每个元素加入到cmd.Parameters里面
+                        }
+                    }
+                    int i = cmd.ExecuteNonQuery();
+                    return i;
+                }
+            }
+            return 0;
+        }
+        
+        //执行查询
+        public static DataTable ExecuteQuery(string sql, SqlParameter[] arrP, bool isProc)  
+        {
+            using (SqlConnection con = new SqlConnection(connStr))  //using代码快执行完括号里的自动销毁
+            {
+                con.Open(); //打开数据库连接
+                using (SqlCommand cmd = new SqlCommand(sql, con))
+                {
+                    cmd.CommandType = (isProc)?CommandType.StoredProcedure : CommandType.Text;
+                    if (arrP != null) //执行的就是参数化的SQL指令
+                    {
+                        foreach (SqlParameter param in arrP) //遍历数组的每个元素
+                        {
+                            cmd.Parameters.Add(param);  //每个元素加入到cmd.Parameters里面
+                        }
+                    }
+                    DataTable dt = new DataTable();  //用来保存查询结果的
+                    //数据适配器
+                    SqlDataAdapter da = new SqlDataAdapter(cmd);
+                    da.Fill(dt); //将查询结果填充到dt表中
+                    return dt;   //返回数据表
+                }
+            }
+            
+        }
+
+
+    }
+}
+```
 
 >然后是DAL层
 
