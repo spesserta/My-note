@@ -1,0 +1,10 @@
+C:\Users\LENOVO\Desktop\C#多线程案例\C#多线程案例\bin\Debug\C#多线程案例.exe.config
+C:\Users\LENOVO\Desktop\C#多线程案例\C#多线程案例\bin\Debug\C#多线程案例.exe
+C:\Users\LENOVO\Desktop\C#多线程案例\C#多线程案例\bin\Debug\C#多线程案例.pdb
+C:\Users\LENOVO\Desktop\C#多线程案例\C#多线程案例\obj\Debug\C#多线程案例.csproj.AssemblyReference.cache
+C:\Users\LENOVO\Desktop\C#多线程案例\C#多线程案例\obj\Debug\C_多线程案例.Form1.resources
+C:\Users\LENOVO\Desktop\C#多线程案例\C#多线程案例\obj\Debug\C_多线程案例.Properties.Resources.resources
+C:\Users\LENOVO\Desktop\C#多线程案例\C#多线程案例\obj\Debug\C#多线程案例.csproj.GenerateResource.cache
+C:\Users\LENOVO\Desktop\C#多线程案例\C#多线程案例\obj\Debug\C#多线程案例.csproj.CoreCompileInputs.cache
+C:\Users\LENOVO\Desktop\C#多线程案例\C#多线程案例\obj\Debug\C#多线程案例.exe
+C:\Users\LENOVO\Desktop\C#多线程案例\C#多线程案例\obj\Debug\C#多线程案例.pdb
