@@ -43,7 +43,7 @@ private async void btnStartCollect_Click(object sender, EventArgs e)
 }
 ```
 
-## 2. 跨线程访问UI控件（必会，上位机100%遇到）
+## 2. 跨线程访问UI控件
 >核心原则：子线程（后台采集、通信线程）不能直接修改UI控件（如TextBox、Label），会报线程安全异常。<br>
 >两种场景实现（对应上位机常用框架）：
 ### （1）WinForm
@@ -83,7 +83,7 @@ private void UpdateUIFromThreadAsync(string data)
 }
 ```
 
-### （2）WPF（部分上位机使用）
+### （2）WPF
 
 ```c#
 // 用Dispatcher.Invoke/BeginInvoke
@@ -97,7 +97,7 @@ private void UpdateUIFromThreadWPF(string data)
 }
 ```
 
-## 3. 线程安全（上位机高频场景）
+## 3. 线程安全
 >场景：多线程同时读写同一个变量（如采集数据缓存、全局配置）、同时操作同一个资源（如日志文件、串口），会出现数据错乱、程序崩溃。
 
 >必会解决方案：
@@ -151,7 +151,7 @@ private void ProcessData()
 - 死锁：两个线程互相等待对方释放锁，导致程序卡死（上位机开发中，避免嵌套lock即可基本规避）。
 
 
-## 4. 线程取消（上位机必备功能）
+## 4. 线程取消
 >场景：点击“停止采集”“断开连接”、关闭窗口时，安全退出后台线程（避免线程占用资源、程序无法正常关闭）。
 >必会：CancellationToken（取消令牌）
 
