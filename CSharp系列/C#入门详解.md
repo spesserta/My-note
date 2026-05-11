@@ -1,7 +1,4 @@
 
-
-
-
 # 一、Hello World
 
 
@@ -857,6 +854,264 @@ catch (ArgumentException ex)
 ```
 
 # 八、字段和属性
+
+字段其实就是类里面的成员变量，用于直接存储数据。通常定义为 private（私有），避免外部直接访问和修改，防止数据被随意篡改（封装原则）。根据是否用static修饰可以分为：静态只读字段和实例只读字段。
+
+```c#
+namespace C_test
+{
+internal class Program
+    {
+        static void Main(string[] args) 
+        {
+            Student student = new Student();
+            student.age = 40;    
+            student.name = "Test";
+Student student2 = new Student();
+            student2.age = 80;  
+            student.name = "Test";
+}
+    }
+class Student
+    {
+        public int age;        //实例字段
+        public string name="default";  //给实例字段设置默认值
+        public static int Amount; //静态字段
+        public Student() //实例构造器（给实例字段用的构造器）
+        {
+            
+        }
+        static Student() //静态构造器（给静态字段用的，会在数据加载的时候执行而且只会执行一次）
+        {
+}
+    }
+}
+```
+
+属性是包裹字段的 “访问器”，提供受控的访问方式（读/写），是字段的 “对外接口”，包含 get（读取值）和 set（设置值）方法，可以在读写时添加逻辑（比如数据验证、日志记录）。
+
+```c#
+class Student
+{
+    private int age;        //实例字段
+    public int GetAge()    //get属性获取值
+    {
+        return age;
+    }
+    public void SetAge(int Value) //set属性设置值
+     {
+            if(Value>=0 && Value < 120) //在属性内可以添加逻辑
+            {
+                this.age = Value;
+            }
+            else
+            {
+                throw new Exception("年龄输入错误！");
+            }
+    }
+}
+```
+
+这样设置的话主函数访问就需要这么写：
+```c#
+Student student = new Student();
+student.SetAge(20);
+```
+
+其实还有一个更好的方法，可以使用微软自己设置的set和get函数：
+```c#
+private int age;        //私有字段
+public int Age //公有属性
+{
+       get { return this.age; }
+       set   //set这没有输入的参数因为微软默认value是
+       {
+                if (value >= 0 && value <= 120) //value是局部关键字，用来接收输入的关键字，放外面就不是关键字了
+                {
+                    this.age = value;
+                }
+                else
+                {
+                    throw new Exception("年龄错误！");
+                }
+            }
+        }
+}
+```
+
+
+这样就又可以像之前那样打点访问了：
+```c#
+Student student = new Student();
+student.Age = 20;
+```
+
+# 九、索引器
+
+索引器（Indexer）是C#中一种特殊的类成员，允许你像访问数组一样访问对象的内部数据，本质是给类提供 “数组式” 的访问语法。可以把它理解为：给类定制一个 “[] 运算符”，让对象能通过 对象名[索引] 的方式读取/修改内部数据，而不用显式调用方法（比如 GetData(int index)/SetData(int index, value)）。
+
+
+```c#
+using System;
+// 自定义一个简单的字符串容器类
+class StringContainer
+{
+    // 内部存储数据的数组
+    private string[] _strings = new string[3] { "张三", "李四", "王五" };
+    // 定义索引器（核心）
+    // 语法：public 返回值类型 this[参数类型 索引名] { get; set; }
+    public string this[int index]
+    {
+        // 读取索引对应的值（get访问器）
+        get
+        {
+            // 简单的边界检查（避免数组越界）
+            if (index < 0 || index >= _strings.Length)
+            {
+                throw new ArgumentOutOfRangeException("index", "索引超出范围");
+            }
+            return _strings[index];
+        }
+        // 修改索引对应的值（set访问器）
+        set
+        {
+            if (index < 0 || index >= _strings.Length)
+            {
+                throw new ArgumentOutOfRangeException("index", "索引超出范围");
+            }
+            // set访问器中，value是关键字，代表外部传入的赋值内容
+            _strings[index] = value;
+        }
+    }
+    // 可选：获取内部数组长度，方便外部遍历
+    public int Length => _strings.Length;
+}
+// 测试索引器
+class Program
+{
+    static void Main()
+    {
+        // 创建对象
+        StringContainer container = new StringContainer();
+        // 1. 读取索引器的值（像数组一样用[]）
+        Console.WriteLine("读取索引0的值：" + container[0]); // 输出：张三
+        Console.WriteLine("读取索引1的值：" + container[1]); // 输出：李四
+        // 2. 修改索引器的值
+        container[1] = "赵六";
+        Console.WriteLine("修改后索引1的值：" + container[1]); // 输出：赵六
+        // 3. 遍历（结合Length）
+        Console.WriteLine("\n遍历所有元素：");
+        for (int i = 0; i < container.Length; i++)
+        {
+            Console.WriteLine(container[i]);
+        }
+    }
+}
+```
+
+
+# 十、参数
+
+### 1、传值参数—值参数
+
+场景 1：值参数 + 值类型（最基础） <br>
+值类型变量：存储的是实际数据（比如int num = 10，变量直接存 10）。<br>
+值参数传递：复制一份实际数据给方法，方法内修改副本，原变量完全不受影响。<br>
+
+<img width="801" height="515" alt="image" src="https://github.com/user-attachments/assets/879f8198-52c6-41f2-acaf-5c195d12b0d8" />
+
+<img width="786" height="429" alt="image" src="https://github.com/user-attachments/assets/f8b0c13f-afc0-46ba-bbcc-bdb38dce044c" />
+
+
+场景 2：值参数 + 引用类型<br>
+引用类型变量：存储的是 “对象在堆上的内存地址”（比如Person p = new Person()，变量 p 存的是对象的地址，不是对象本身）。<br>
+值参数传递：复制的是 “地址的副本”—— 方法内通过副本地址修改对象的属性，会影响原对象；但修改 “副本地址本身”（比如重新 new），不会影响原变量的地址。<br>
+
+
+<img width="1191" height="665" alt="image" src="https://github.com/user-attachments/assets/66d7eb95-5282-4233-84e6-f993641bbc75" />
+
+
+<img width="779" height="715" alt="image" src="https://github.com/user-attachments/assets/0fe0f57b-b68f-4c67-84b2-f74caa1322ab" />
+
+
+### 2、传地址—引用参数
+
+场景 3：ref 参数 + 值类型 <br>
+ref 传递：直接传递值类型变量的 “内存地址”，方法内修改的是原变量的实际数据，会同步影响原变量。<br>
+
+<img width="1187" height="660" alt="image" src="https://github.com/user-attachments/assets/57ea3604-154e-4085-9d68-ea8bc9b5e800" />
+
+<img width="783" height="425" alt="image" src="https://github.com/user-attachments/assets/6b5ffbca-0f83-4fd2-af02-28140a8d666d" />
+
+
+场景 4：ref 参数 + 引用类型
+ref 传递：直接传递引用类型变量的 “地址本身”（不是地址副本）—— 方法内无论是修改对象属性，还是重新 new 对象（修改地址），都会影响原变量。
+
+<img width="1189" height="662" alt="image" src="https://github.com/user-attachments/assets/450ad2b8-d4a1-480b-bcfe-2cf004363242" />
+
+<img width="779" height="678" alt="image" src="https://github.com/user-attachments/assets/de8c2741-7b69-4894-9944-540388a6e89b" />
+
+
+### 3、输出参数
+
+需要显式加 out 修饰符，专门用于方法返回多个值（弥补 C# 方法只能返回一个值的限制）。<br>
+原理：和 ref 类似（传递地址），但要求更严格：<br>
+实参可以不初始化（方法内必须给 out 参数赋值）；<br>
+方法内部必须为 out 参数赋值，否则编译报错。<br>
+场景：比如一个方法既要返回计算结果，又要返回是否成功。<br>
+
+<img width="922" height="604" alt="image" src="https://github.com/user-attachments/assets/d622f26b-7a56-453d-964c-6e22cf409ad8" />
+
+
+<img width="865" height="558" alt="image" src="https://github.com/user-attachments/assets/dd743773-047a-42fe-9b4f-408296fcdc67" />
+
+
+<img width="804" height="567" alt="image" src="https://github.com/user-attachments/assets/31cc68dd-396b-4bc2-bf4d-9a97b9b583a1" />
+
+<img width="777" height="488" alt="image" src="https://github.com/user-attachments/assets/eb15f032-6438-4d37-8a55-928764e34415" />
+
+
+### 4. 参数数组（params 修饰符）
+
+需要显式加 params 修饰符，允许方法接收数量可变的同类型参数。<br>
+原理：编译器会自动把可变参数转换成数组，params 必须是方法的最后一个参数。<br>
+
+<img width="722" height="215" alt="image" src="https://github.com/user-attachments/assets/47644145-78d6-49d1-8d45-4b133276dfdc" />
+
+
+```c#
+string str = "Tim;Tom;Amy;Lisa";
+string[] strings = str.Split(';', ';',';');  //str.Split表示分离
+foreach (var name in strings) {
+    Console.WriteLine(name);
+}
+```
+
+<img width="782" height="613" alt="image" src="https://github.com/user-attachments/assets/e03ff560-0dfa-4798-a608-c9900d73279b" />
+
+
+### 5、具名参数
+
+<img width="561" height="257" alt="image" src="https://github.com/user-attachments/assets/ddc81031-79f4-4336-a701-49cae78fae7c" />
+
+
+### 6、可选参数
+
+<img width="538" height="258" alt="image" src="https://github.com/user-attachments/assets/db38a889-4b3d-4303-b366-054895f2191f" />
+
+
+### 7、扩展方法this参数
+
+<img width="880" height="251" alt="image" src="https://github.com/user-attachments/assets/f590f36b-278e-4e04-bbcf-bd9664a0ca2a" />
+
+
+### 8、使用场景总结
+
+<img width="713" height="330" alt="image" src="https://github.com/user-attachments/assets/8f11c1fe-23db-45da-b36a-d1436795214b" />
+
+
+
+
 
 
 
