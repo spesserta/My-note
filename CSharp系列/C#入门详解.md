@@ -316,6 +316,55 @@ class Program
 
 <img width="656" height="487" alt="image" src="https://github.com/user-attachments/assets/5d0fb9c8-4293-4956-8cf0-ad4f94a17237" />
 
+- 值类型（int、struct、enum 等）是存值本身，数据存放在栈中，赋值的时候采用复制的方式，可以进一步分为类、接口、委托
+- 引用类型（class、string、数组、委托等）存地址，数据存放在堆中，赋值的时候采用复制地址的方式，可以进一步分为：结构体、枚举
+
+还有特殊的指针类型（unsafe 用）和可空类型（int?），分别用于底层操作和值类型存 null。比如 string 虽然是引用类型，但它是 “不可变的”—— 修改 string 时其实是创建新对象，所以行为像值类型；
+
+### 8、变量、对象与内存
+
+变量从表面上来看是用来存储数据的，准确点说：变量是以变量名所对应的内存地址为起点、以其数据类型所要求的存储空间为长度的一块内存区域。<br>
+
+变量的7种类型：静态变量、实例变量（成员变量/字段）、数组元素、值参数、引用参数、输出形参、局部变量。<br>
+
+声明格式：[可选修饰符] 类型 变量名; <br>
+
+值类型和引用类型：
+
+
+<img width="787" height="528" alt="image" src="https://github.com/user-attachments/assets/ae9d4df6-7f9b-4cb6-a1aa-6cd8429a0863" />
+
+
+<img width="874" height="628" alt="image" src="https://github.com/user-attachments/assets/ad0a72da-6074-4a08-b0bb-147ea599ad60" />
+
+>最后需要注意：局部变量是在栈空间里的，局部变量那种的值类型需要有明确的默认值（没有就报错）。引用的默认值是0
+
+<img width="853" height="427" alt="image" src="https://github.com/user-attachments/assets/9bb2a4d5-307d-45c5-8a5a-b98eb3182974" />
+
+<img width="868" height="590" alt="image" src="https://github.com/user-attachments/assets/f44be0a0-65c3-4a33-8313-a34ab96c3e0a" />
+
+
+### 9、装箱和拆箱、常量
+
+装箱和拆箱说白了可以总结成一句话:  拆箱：堆到栈 装箱：栈到堆 ，尽量避免装拆箱来提高性能。<br>
+
+常量就是定义的时候必须赋值，然后赋值后不能修改。
+
+
+<img width="776" height="617" alt="image" src="https://github.com/user-attachments/assets/4f4415a3-ff22-488b-85b8-e1dbd2c19cc5" />
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
