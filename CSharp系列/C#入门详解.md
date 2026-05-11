@@ -229,6 +229,93 @@ int StuentAge = 20;
 注释符和C语言是一样的：//和/*   */
 
 
+### 7、数据类型
+
+一个C#类型中所包含的信息有:
+- 存储此类型变量所需的内存空间大小
+- 此类型的值可表示的最大、最小值范围:此类型所包含的成员(如方法、属性、事件等)
+- 此类型由何基类派生而来
+- 程序运行的时候，此类型的变量在分配在内存的什么位置
+- 此类型所允许的操作(运算)
+
+数据类型所需的空间大小以及表示范围的参考图如下，如果想深究可以学习《计算机组成原理》。
+
+<img width="700" height="365" alt="image" src="https://github.com/user-attachments/assets/1795cd37-e768-4708-81e9-ff53b251f9fd" />
+
+<img width="619" height="170" alt="image" src="https://github.com/user-attachments/assets/0419c65d-9583-4553-bbb7-a2941f0a665d" />
+
+数据类型类型本质上可以用一个类来定义，例如int对应着一个特殊的类，所以包括方法、属性、事件等成员, 也可以用上继承多态等。
+
+```c#
+internal class Program
+{
+   static void Main(string[] args)
+   {
+      Type thisType= typeof(int);   //Type表示类型，变量用来获取int的数据类型
+      Console.WriteLine(thisType.Name);  //输出int型的类型名字
+      Console.WriteLine(thisType.BaseType.FullName);  //输出int型的父类全名
+      Console.WriteLine(thisType.BaseType.FullName.FullName);  //输出int型的父类的父类全名（报错因为往上没有父类了）
+   }
+}
+```
+
+数据类型也具有允许该类的操作（运算），例如int类型支持单目自增++
+
+```c#
+int age = 10;
+age++;
+```
+
+一个程序的静态的东西是装在硬盘上的，动态的东西是装在内存上的。内存里也包含堆区和栈区，栈区主要是放调用的方法的，内存小速度快，堆主要放实际数据的，栈满了叫爆栈，堆满了叫内存泄露。
+
+<img width="854" height="534" alt="image" src="https://github.com/user-attachments/assets/36fe9561-20a3-474a-be69-e1609d837760" />
+
+```c#
+using System;
+
+class Program
+{
+    // 自定义引用类型（类）
+    class Person // 引用类型，实际数据存在堆上
+    {
+        public int Age; // 值类型，作为引用类型的成员，也存在堆上
+    }
+
+    static void Main()
+    {
+        // 1. 值类型（int）— 直接存在栈上
+        int num = 10;
+
+        // 2. 引用类型（Person）— 分两部分：
+        //    - 变量person（引用/指针）存在栈上
+        //    - new Person()的实际对象存在堆上
+        Person person = new Person();
+        person.Age = 20;
+
+        // 3. 方法调用—方法的参数/局部变量入栈，方法结束后出栈
+        ChangeValue(num);
+        ChangePerson(person);
+
+        Console.WriteLine("num = " + num);         // 输出 10（栈上值未被修改）
+        Console.WriteLine("person.Age = " + person.Age); // 输出 30（堆上数据被修改）
+    }
+
+    static void ChangeValue(int value)
+    {
+        value = 100; // 修改的是栈上的副本，不影响原变量
+    }
+
+    static void ChangePerson(Person p)
+    {
+        p.Age = 30; // p是栈上的引用，指向堆上的对象，修改的是堆上的实际数据
+    }
+}
+```
+
+面试题：C#有哪些数据类型
+
+<img width="656" height="487" alt="image" src="https://github.com/user-attachments/assets/5d0fb9c8-4293-4956-8cf0-ad4f94a17237" />
+
 
 
 
