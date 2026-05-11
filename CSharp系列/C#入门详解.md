@@ -354,24 +354,509 @@ class Program
 <img width="776" height="617" alt="image" src="https://github.com/user-attachments/assets/4f4415a3-ff22-488b-85b8-e1dbd2c19cc5" />
 
 
+# 四、方法
+
+C#的方法是由C语言的函数发展过来的，它俩其实一样，只是叫法不同。C#的方法有以下几个特点：
+
+- 方法不能写在类的外面（C++的函数写在类外叫做全局函数，C#不能这样）
+- 方法是类的基本成员之一
+- 使用方法是为了隐藏复杂的逻辑以及方便代码重用
+
+### 1、方法的组成如下
+
+<img width="1279" height="570" alt="image" src="https://github.com/user-attachments/assets/284f3d98-bd93-4645-8c1e-446b8819e477" />
+
+### 2、方法的声明和调用
+
+```c#
+using System;
+namespace C_test
+{
+internal class Program
+    {
+        static void Main(string[] args)
+        {
+            Calcular.GetCircleArea(10); //静态方法和类绑定
+            Calcular calcular = new Calcular(); 
+            calcular.GerCircleArea(10); //静态方法不和对象绑定，会报错
+}
+    }
+    class Calcular  
+    {
+        public static double GetCircleArea(double r) //静态方法和类绑定
+        {
+            return Math.PI * r * r;
+        }
+    }
+}
+```
+
+### 3、构造器
+
+构造器就是C++里面的构造函数，狭义的构造器就是指“实例构造器”，当申明一个对象的时候，会给这个对象分配一个内存空间，然后自动调用构造器给对象的属性赋初始值或指定值。<br>
+
+默认构造器：
+
+```c#
+using System;
+namespace C_test
+{
+internal class Program
+    {
+        static void Main(string[] args)
+        {
+            Student student = new Student(); //默认构造器在new一个对象的时候起作用，给对象的数据成员赋初始值
+}
+    }
+    class Student  //该类里面没有构造器，将使用自带的默认构造器
+    {
+        public int Id;   
+        public string Name;
+    
+    }
+}
+```
+带参数的构造器和不带参数的构造器：
+```c#
+using System;
+using System.Security.Cryptography.X509Certificates;
+namespace C_test
+{
+internal class Program
+    {
+        static void Main(string[] args)
+        {
+            Student student1 = new Student();     //将用不带参数的构造器
+            Student student2 = new Student(121,"小明");  //将用待参数的构造器
+            Console.WriteLine(student1.Id);
+            Console.WriteLine(student1.Name);
+            Console.WriteLine(student2.Id);
+            Console.WriteLine(student2.Name);
+}
+    }
+    class Student 
+    {
+        public Student()  //创建一个自定义不带参数的构造器，当new一个对象的时候没填信息，将会使用这个默认信息
+        {
+            this.Id = 1;  //this 就是表示这个函数中所指的变量
+            this.Name="Default";
+        }
+        public Student(int id, string name) //创建一个自定义带参数的构造器，new一个对象的时候填信息就会用这个
+        {
+            Id = id;
+            Name = name;
+        }
+        public int Id;   
+        public string Name;
+    
+    }
+}
+```
+
+### 4、方法的重载overload
+
+方法重载说白了就是：方法名称相同，返回值或者形参是不同的，在调用方法的时候会在这些同名方法中一个一个的比较数据类型和形参数量。根据实际情况来调用同名不同操作的方法。
+
+```c#
+using System;
+using System.Security.Cryptography.X509Certificates;
+namespace C_test
+{
+internal class Program
+    {
+        static void Main(string[] args)
+        {
+            Calculator calculator = new Calculator();
+            Console.WriteLine(calculator.Add(1, 2));    //调用第一个
+            Console.WriteLine(calculator.Add(1D, 2D));  //调用第二个
+            Console.WriteLine(calculator.Add(1, 2,3));  //调用第三个
+}
+    }
+class Calculator 
+    {
+        //在调用Add方法的时候会在这些同名方法中一个一个的比较数据类型和形参数量
+        public int Add(int a,int b)   
+        {
+            return a + b;
+        }
+        public double Add(double a, double b)
+        {
+            return a + b;
+        }
+        public int Add(int a, int b,int c)
+        {
+            return a + b + c;
+        }
+      
+}
+```
+
+### 5、VS里面方法的Debug
+
+如果要调试一段代码时，首先需要设置断点，然后观察方法调用时的call stack，然后利用好Step-in，step-over，step-out来往下调试，需要观察里面的局部变量的变化情况。<br>
+
+断点就是程序运行到这里的时候会停下来的点，方便程序员观察。在VS中的代码左侧按F9就可以设置一个断点。
+
+<img width="1913" height="1017" alt="image" src="https://github.com/user-attachments/assets/64e662d5-2be0-40de-ae50-f0e11c53b366" />
+
+- Step-in方式的debug就是一行一行的执行，按F11可以实现
+- Step-over方式的debug就是当前的方法直接跳过，一段一段的执行，这个可以按F10
+- Step-out立即执行完当前所在函数的剩余代码，直接跳出到调用这个函数的上一级代码行并暂停。
+
+<img width="765" height="310" alt="image" src="https://github.com/user-attachments/assets/6fb61bba-3d6a-41b4-ba95-26364fd88723" />
+
+
+
+# 五、操作符
+
+c#语句=操作符+表达式
+
+### 1、操作符表
+
+<img width="861" height="443" alt="image" src="https://github.com/user-attachments/assets/a5367bb8-100e-45ae-8fb9-3cc10be5e7eb" />
+
+学过C语言的话，以上的运算符应该都很熟悉了。
+
+### 2、自定义操作符举例
+
+```c#
+using System;
+using System.Security.Cryptography.X509Certificates;
+namespace C_test
+{
+internal class Program
+    {
+        static void Main(string[] args)
+        {
+            Person person1 = new Person();
+            Person person2 = new Person();
+            person1.Name = "jack";
+            person2.Name = "cherry";
+            List<Person> nation = Person.Getmary(person1, person2); //建立国家链表的时候jack和cherry进入链表中并生了11个孩子
+            foreach(var p in nation) //遍历链表
+            {
+                Console.WriteLine(p.Name);
+            }
+        }
+    }
+class Person
+{
+        public string Name;
+        public static List<Person>Getmary(Person p1, Person p2)
+        {
+            List<Person> people = new List<Person>();  //建立链表
+            people .Add(p1);  //将夫妻两人放入链表中
+            people .Add(p2);
+            for(int i = 0; i < 11; i++)  
+            {
+                Person child = new Person();  //夫妻生11个孩子
+                child.Name = p1.Name + "&" + p2.Name + "s child";
+                people.Add(child);
+            }
+            return people;
+        }
+    
+ }
+```
+
+### 3、优先级与运算数据
+
+<img width="861" height="443" alt="image" src="https://github.com/user-attachments/assets/ce8720eb-f6f1-4fc8-a562-6646042096fd" />
+
+如图，操作符优先级从上往下依次下降，另外还需知道以下特点：
+
+- 可以使用圆括号括起来的方式提升优先级
+- 除了带赋值功能的操作符，同优先级的操作符是由左到右的顺序执行运算
+- 同优先级的运算没有结合率，例如3+4+5得写成Add(3,Add(4,5));
+
+```c#
+int x=100;
+x = 3 + 6 + 4; //从左向右算
+int y = 100;
+x += y;       //带有赋值功能
+int z = 100;
+x += y += z;  //从右往左，先执行y+z然后+x
+```
+
+
+### 4、基本操作符扫盲
+
+- x.y表示成员访问符
+- f(x)表示方法调用符
+- a[x]表示访问数组的元素
+- x++和x--表示后置的自增和自减
+- new表示声明对象
+- typeof帮助查看数据类型的基本结构（例如Type t = typeof(int)是获取int类型的各种信息）
+- default帮助我们获得默认值（例如int x = default(int)，对应内存区域默认刷成0）
+- checked和unchecked表示该数据类型有没有溢出
+- delegate表示委托（目前过时了，被lamuba语法取代）
+- sizeof返回类型所占用字节大小、箭头->表示访问结构体内指针指向的值。
+
+<img width="1000" height="575" alt="image" src="https://github.com/user-attachments/assets/f518ec06-2b66-4997-b5c3-2701b14e818c" />
+
+<img width="1610" height="725" alt="image" src="https://github.com/user-attachments/assets/7d789484-8a26-4d66-b81b-bb4013dd355b" />
+
+### 5、一元操作符扫盲
+
+- 首先&是取地址操作符
+- *表示取值操作符，需要在unsafe{}代码快里面。
+- + - 单目就是单纯的给数字加正负号
+- ！表示逻辑非、~表示异或，就是将数字表示的二进制值都按位取反
+- 前++--表示先自增自建后执行语句、(T)表示强制类型转换操作符、
+
+```c#
+int x = -100;  //负的
+Console.WriteLine(-x); //负负得正
+```
+
+### 6、剩下的操作符扫盲
+
+- 乘法、加法、移位操作符：无需多言，稍微难点的移位符就是将二进制数左移或者右移一位，左移相当于*2，右移相当于/2.
+- 关系操作符：所有的关系符的运算结果都是bool类型的，数字之间是比较大小，字符之间是比较ASCII码的大小。
+- 逻辑操作符：与或非无需多言，注意短路效应，例如x>y && a++>3的时候，如果x>y不成立的话，后面的就不会再看了，a++不会执行。
+- 二进制操作符：按位与、按位或、按位异或这种都是操作二进制数的，例如x&y是两者二进制数相与。
+- 条件表达式：这个是唯一一个三位运算符，例如x>y ? A : B ，这个相当于简化版的if else分支，如果x>y则执行A，如果x<=y则执行B
+- 赋值和lambda表达式：注意带赋值符号则从右往左，lambda表达式后面再说。
+
+
+
+# 六、类型转换
+
+### 1、隐式类型转换
+
+隐式类型转换是编译器自动转换，不损失精度，在不同类型的值计算的时候会进行。隐私类型转换是通过多态来实现的，多态可以理解为子类向父类的隐式类型转换。
+
+<img width="698" height="381" alt="image" src="https://github.com/user-attachments/assets/77d50a25-496d-46e5-b782-151fd52f6ea8" />
+
+```c#
+using System;
+using System.Runtime.InteropServices.Marshalling;
+using System.Security.Cryptography.X509Certificates;
+namespace C_test
+{
+internal class Program
+    {
+        static void Main(string[] args) 
+        {
+            Teacher teacher = new Teacher();
+            Human human = teacher; //将teacher所存储的地址交给human（子类到父类的隐式转换）
+            human.Eat();   //子类可以访问父类的方法
+            human.Think(); //子类可以访问自己的方法
+            human.teach();  //报错，子类不能访问自己子类的方法
+        }
+    }
+class Animal   //动物类
+    { 
+        public void Eat()
+        {
+            Console.WriteLine("Eating....");
+        }
+    
+    }
+    class Human : Animal  //人类
+    {
+        public void Think()
+        {
+            Console.WriteLine("思考....");
+        }
+    }
+    class Teacher : Human  //老师类
+    {
+       public void Teach()
+        {
+            Console.WriteLine("教学.....");
+        }
+    }
+}
+```
+
+### 2、显式类型转换
+
+程序员自己进行的强制转换，在对象或者变量前面加上括号就行了，使用显式类型转换代表程序员自愿承担精度丢失的后果。
+
+<img width="1106" height="766" alt="image" src="https://github.com/user-attachments/assets/d9552b1b-fcd8-41cb-9926-5a788977703a" />
+
+
+除了加括号，还有convert和toString和Parse这两种显式转换的方法。
+
+
+<img width="1603" height="715" alt="image" src="https://github.com/user-attachments/assets/1c3e0c86-b063-45e1-a3f3-9348c567ffe2" />
 
 
 
 
+# 七、表达式语句
 
 
+<img width="1420" height="808" alt="image" src="https://github.com/user-attachments/assets/4b243767-60e2-40b0-ad02-6cb83e9fab34" />
 
 
+一些重要的表达式举例如下：<br>
+
+if-else语句：
+
+```c#
+// if形式
+int score = 85;
+if (score >= 60)
+{
+    Console.WriteLine("及格"); // 条件为true时执行
+}
+// if-else 形式（二选一）
+if (score >= 90)
+{
+    Console.WriteLine("优秀");
+}
+else
+{
+    Console.WriteLine("非优秀"); // 条件为false时执行
+}
+// if-else if-else 形式（多选一）
+if (score >= 90)
+{
+    Console.WriteLine("优秀");
+}
+else if (score >= 80)
+{
+    Console.WriteLine("良好");
+}
+else if (score >= 60)
+{
+    Console.WriteLine("及格");
+}
+else
+{
+    Console.WriteLine("不及格"); // 所有条件都不满足时执行
+}
+```
+
+switch语句：
+```c#
+int day = 3;
+switch (day)
+{
+    case 1:
+        Console.WriteLine("周一");
+        break; // 跳出switch，避免执行后续case
+    case 2:
+        Console.WriteLine("周二");
+        break;
+    case 3:
+        Console.WriteLine("周三");
+        break;
+    default: // 所有case都不匹配时执行
+        Console.WriteLine("无效日期");
+        break;
+}
+```
 
 
+for语句：
 
+```c#
+// 输出1-5
+for (int i = 1; i <= 5; i++) // 初始化i=1 → 条件i<=5 → 执行循环体 → i++
+{
+    Console.WriteLine(i);
+}
+```
 
+foreach迭代器：
 
+```c#
+string[] fruits = { "苹果", "香蕉", "橙子" };
+// 遍历每一个元素
+foreach (string fruit in fruits)
+{
+    Console.WriteLine(fruit);
+}
+```
 
+while循环：
+```c#
+int count = 0;
+// 条件为true时循环
+while (count < 3)
+{
+    Console.WriteLine("循环中：" + count);
+    count++; // 必须手动修改条件变量，否则死循环
+}
+```
 
+Do-while循环：
+```c#
+int num = 5;
+do
+{
+    Console.WriteLine("执行一次：" + num);
+    num--;
+} while (num > 10); // 条件为false，但循环体已执行1次
+```
 
+break和continue语句：
+```c#
+// break示例：输出1-3后终止
+for (int i = 1; i <= 5; i++)
+{
+    if (i == 4) break;
+    Console.WriteLine(i);
+}
+// continue示例：跳过偶数，只输出奇数
+for (int i = 1; i <= 5; i++)
+{
+    if (i % 2 == 0) continue;
+    Console.WriteLine(i);
+}
+```
+异常处理语句try-catch-finally：
+```c#
+try
+{
+    // 可能抛出异常的代码（受保护的代码）
+    int a = 10;
+    int b = 0;
+    int result = a / b; // 此处会抛出DivideByZeroException
+    Console.WriteLine(result);
+}
+catch (DivideByZeroException ex) // 捕获指定类型的异常
+{
+    // 异常处理逻辑（如提示用户、记录日志）
+    Console.WriteLine("错误：除数不能为0 → " + ex.Message);
+}
+catch (Exception ex) // 捕获所有其他异常（父类异常，放最后）
+{
+    Console.WriteLine("未知错误 → " + ex.Message);
+}
+finally
+{
+    // 无论是否发生异常，都会执行的代码（如释放资源：关闭文件、数据库连接）
+    Console.WriteLine("finally块执行（资源清理）");
+}
+```
 
+抛出异常语句throw
+```c#
+void CheckAge(int age)
+{
+    if (age < 0)
+    {
+        // 主动抛出异常
+        throw new ArgumentException("年龄不能为负数");
+    }
+    Console.WriteLine("年龄合法：" + age);
+}
+// 调用方法（需用try-catch捕获）
+try
+{
+    CheckAge(-5);
+}
+catch (ArgumentException ex)
+{
+    Console.WriteLine(ex.Message);
+}
+```
 
+# 八、字段和属性
 
 
 
