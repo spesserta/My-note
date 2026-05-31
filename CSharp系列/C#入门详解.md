@@ -1,4 +1,4 @@
-
+<img width="966" height="899" alt="image" src="https://github.com/user-attachments/assets/32f7f5ab-75be-4aee-886d-c99e398c702e" /><img width="976" height="161" alt="image" src="https://github.com/user-attachments/assets/c194e822-c717-42ab-94d6-0cffd9373e73" /><img width="966" height="51" alt="image" src="https://github.com/user-attachments/assets/c0719d95-f532-4f14-aecb-13b9d8e21826" /><img width="658" height="26" alt="image" src="https://github.com/user-attachments/assets/89c89318-9e24-4576-af2c-bf896e37d794" /><img width="966" height="51" alt="image" src="https://github.com/user-attachments/assets/b3527b74-7e6e-430d-981c-c746b4765289" /><img width="966" height="56" alt="image" src="https://github.com/user-attachments/assets/b3532a00-f188-44e1-b5af-691f525fce50" /><img width="547" height="28" alt="image" src="https://github.com/user-attachments/assets/a9f17a63-67dc-47c1-9da8-6f890a5309e8" /><img width="966" height="51" alt="image" src="https://github.com/user-attachments/assets/c37b7963-8bc4-4827-92e6-95ed1541f5dc" /><img width="782" height="26" alt="image" src="https://github.com/user-attachments/assets/08c4c076-1d0e-4d09-a955-e7d87c00f745" />
 # 一、Hello World
 
 
@@ -1108,6 +1108,715 @@ foreach (var name in strings) {
 ### 8、使用场景总结
 
 <img width="713" height="330" alt="image" src="https://github.com/user-attachments/assets/8f11c1fe-23db-45da-b36a-d1436795214b" />
+
+
+# 十一、委托
+
+委托可以比喻成一个装方法的箱子，箱子里装了很多个方法，当需要一批方法的时候，就调用这个委托就行了。
+
+
+<img width="921" height="474" alt="image" src="https://github.com/user-attachments/assets/54849589-7c70-40e5-a9bc-d78fc4ddd043" />
+
+### 1、C#自带委托
+
+简单的委托使用方式包括Action和Func，方法的调用方式也包括直接调用（方法名）和间接调用（指针方式）。C#封装好了Action和Function两种委托，最多支持16个参数的模版，其中Action不带返回值而Function带返回值（返回值就是最后一个参数的类型），写法如下：
+
+
+<img width="769" height="242" alt="image" src="https://github.com/user-attachments/assets/8774458e-5a5b-42c3-8550-da531d1db923" />
+
+
+<img width="870" height="290" alt="image" src="https://github.com/user-attachments/assets/f8fa6434-ff46-472a-a399-eaac9c1b8e05" />
+
+
+```C#
+using System;
+class Program
+{
+    static void Main()
+    {
+        Calculator calculator = new Calculator();
+        Action action = new Action(calculator.report);
+        calculator.report();               //直接调用calculator.report()方法
+        action.Invoke();                   //使用委托间接调用calculator.report()方法
+        action();                          //简化版的间接调用calculator.report()方法
+        Func<int, int, int> func = new Func<int, int, int>(calculator.Add);  //使用Func委托间接调用calculator.Add()方法
+        Func<int, int, int> func1 = new Func<int, int, int>(calculator.Sub); //使用Func委托间接调用calculator.Sub()方法
+    }
+}
+class Calculator
+{
+    public void report()
+    {
+        Console.WriteLine("I have 3 methods");
+    }
+    public int Add(int a, int b)
+    {
+        int result = a + b;
+        return result;
+    }
+    public int Sub(int a, int b)
+    {
+        return a - b;
+    }
+}
+```
+
+### 2、自定义委托
+
+以上的Action和Func委托都是C#自带的委托，以下是自定义委托的声明：
+
+<img width="942" height="534" alt="image" src="https://github.com/user-attachments/assets/12c1c57f-14cd-4db1-b970-2ba0915208e3" />
+
+
+由此可见，声明的委托的返回值类型和参数类型必须和方法的返回值类型和参数类型相一致，参数名不用一致也行。
+
+```c#
+using System;
+
+class Program
+{
+    static void Main()
+    {
+        Calculator calculator = new Calculator();  //使用委托来封装方法
+        Calc calc1 = new Calc(calculator.Add);
+        Calc calc2 = new Calc(calculator.Sub);
+        Calc calc3 = new Calc(calculator.Multiply);
+        Calc calc4 = new Calc(calculator.Divide);
+        double a = 100;
+        double b = 200;
+        double c = 0;
+        c = calc1.Invoke(a, b);  //使用委托间接调用
+        Console.WriteLine(c);
+        c = calc2.Invoke(a, b);
+        Console.WriteLine(c);
+        c = calc3(a, b);         
+        Console.WriteLine(c);
+        c = calc4(a, b);
+        Console.WriteLine(c);
+    }
+}
+public delegate double Calc(double x, double y); //委托是类，因此与类同级
+class Calculator
+{
+    public double Add(double x, double y)
+    {
+        return x + y;
+    }
+    public double Sub(double x, double y)
+    {
+        return x - y;
+    }
+    public double Multiply(double x, double y)
+    {
+        return x * y;
+    }
+    public double Divide(double x, double y)
+    {
+        return x / y;
+    }
+}
+```
+
+### 3、多播委托
+
+
+多播委托就是一个委托变量绑定多个方法，在调用委托的时候会见绑定的多个方法依次执行。
+
+
+```c#
+using System;
+//定义一个无返回值的委托（多播委托常用无返回值）
+public delegate void NotifyDelegate();
+class Program
+{
+    static void Main()
+    {
+        //分别定义几个要执行的方法
+        void SendEmail() => Console.WriteLine("发送邮件通知");
+        void SendSMS() => Console.WriteLine("发送短信通知");
+        void ShowPopup() => Console.WriteLine("弹出窗口提示");
+        //多播委托用+=把多个方法绑定到一起
+        NotifyDelegate notify = null; // 先初始化为空
+        notify += SendEmail;   // 绑定第一个方法
+        notify += SendSMS;     // 绑定第二个方法
+        notify += ShowPopup;   // 绑定第三个方法
+                               // 4. 调用一次委托，三个方法按顺序执行
+        Console.WriteLine("=== 触发多播委托 ===");
+        notify();
+        //可以用-=解绑某个方法
+        notify -= SendSMS;
+        Console.WriteLine("\n=== 解绑短信后再次触发 ===");
+        notify(); // 只执行邮件和弹窗
+    }
+}
+```
+
+
+<img width="543" height="271" alt="image" src="https://github.com/user-attachments/assets/985f13c0-277f-4dd7-bea0-60a27a1bdaa0" />
+
+
+### 4、隐式异步调用委托
+
+使用此方法可以让委托在后台干活，不会阻塞主线程。同步就相当于一个先后顺序（你做完我再做），异步相当于同时并行做。
+
+```c#
+using System;
+using System.Threading;
+//定义一个有返回值的委托
+public delegate int CalcDelegate(int a, int b);
+class Program
+{
+    static void Main()
+    {
+        //定义一个耗时的计算方法
+        int SlowAdd(int a, int b)
+        {
+            Console.WriteLine("[$] 开始慢计算...（模拟耗时3秒）");
+            Thread.Sleep(3000); // 模拟3秒耗时
+            Console.WriteLine("[$] 慢计算完成！");
+            return a + b;
+        }
+        CalcDelegate calc = SlowAdd;
+        //同步调用（会卡住主线程）
+        Console.WriteLine("=== 同步调用 ===");
+        int syncResult = calc(1, 2);
+        Console.WriteLine("同步结果：" + syncResult);
+        Console.WriteLine("同步调用结束，主线程被卡住了\n");
+        //隐式异步调用（BeginInvoke，不卡住主线程）
+        Console.WriteLine("=== 异步调用 ===");
+        var asyncResult = calc.BeginInvoke(3, 4, null, null); // 后台开始算
+        Console.WriteLine("[*] 主线程继续做别的事...");
+        //模拟主线程在干活
+        for (int i = 0; i < 3; i++)
+        {
+            Console.WriteLine($"[*] 主线程在执行第 {i + 1} 步...");
+            Thread.Sleep(1000);
+        }
+        //等待异步完成并获取结果
+        int asyncResultValue = calc.EndInvoke(asyncResult);
+        Console.WriteLine("异步结果：" + asyncResultValue);
+        Console.WriteLine("异步调用结束");
+    }
+}
+```
+
+# 十二、事件
+
+前面的委托可以比喻成一个装方法的箱子，箱子里装了很多个方法，当需要一批方法的时候，就调用这个委托就行了。事件Event相当于对委托进行权限控制后的东西。
+
+<img width="918" height="466" alt="image" src="https://github.com/user-attachments/assets/e51a5fe4-59bb-4ab0-87a9-d900429d5cc8" />
+
+
+
+委托存在一种风险就是它可以被直接赋值，就会导致其容器内的函数存在丢失的风险，假设我们delegate1容器内存在着数个函数而delegate2没有，用等号赋值完成后委托1的注册函数就会被清空（delegate1的地址指向了delegate2的地址）。
+
+
+<img width="876" height="440" alt="image" src="https://github.com/user-attachments/assets/43b3ffdb-4121-4695-9fc0-19026de14ec7" />
+
+
+而事件就解决了这种问题，事件的本质就是特殊的委托，赋值的权限设置成了Private，比委托更加安全。写法上就是多加了个event关键词。
+
+<img width="809" height="275" alt="image" src="https://github.com/user-attachments/assets/48ea3b41-048c-490e-be2d-706c6a2336ec" />
+
+
+# 十三、类
+
+### 1、构造器和析构器
+
+和C++的构造函数和析构函数是同一个东西，就是在类实例化的时候执行的函数以及类的对象释放内存的时候执行的函数。
+
+<img width="1262" height="702" alt="image" src="https://github.com/user-attachments/assets/0e3db6dc-75b7-4c0d-9727-246177f3ad60" />
+
+### 2、类的继承
+
+类的继承就是子类在父类的基础上扩展功能，以及多个子类可以以一个父类为基础进行多样化扩展。一般来说基类和派生类是一对，父类和子类是一对。
+
+<img width="1094" height="591" alt="image" src="https://github.com/user-attachments/assets/881c9275-7235-4de7-bb86-9d18f706b49d" />
+
+```c#
+using System;
+class Program
+{
+    static void Main()
+    {
+        Type t = typeof(Car);  //t表示Car类
+        Type tb = t.BaseType;  //Car类的基类是Vehicle
+        Console.WriteLine(tb.FullName); //输出的是Vehicle
+        Type tc = tb.BaseType;  //输出的是System.Object类
+        Console.WriteLine(Car is Object); //输出的是true
+        Object o1 = new Vehicle();   //父类类型变量可以引用子类类型的实例（多态）
+        Object o2 = new Car();
+    }
+}
+sealed class Test  //sealed修饰的类不能再派生类（断子绝孙）
+{
+}
+class Vehicle : Object //Object类是所有继承类的源头
+{
+}
+class Car : Vehicle  //Car类从Vehicle类派生而来，Car继承了Vehicle类
+{
+
+}
+class Toy : Vehicle //一个子类只能有一个父类，一个父类可以有多个子类（孩子不能有多个爸，爸爸可以有多个孩子）
+{
+}
+```
+
+<img width="914" height="510" alt="image" src="https://github.com/user-attachments/assets/30dbff52-20b6-48f8-849f-e5da1813df74" />
+
+
+子类对父类的继承是全盘继承的，在派生与继承的过程中进行的是扩展，类成员只可能是越来越多。不要贸然引入新的类成员，不然后期很难去掉了。横向扩展是对类成员个数的扩充，纵向成员是对类版本的更新或者重写。<br>
+
+派生类对继承成员的访问，父类的成员访问修饰符决定了子类能不能访问：<br>
+
+public：任何地方都能访问 ✔️<br>
+protected：子类和同一个包内可以访问 ✔️<br>
+private：子类完全不能访问 ❌<br>
+
+
+```c#
+using System;
+public class Animal
+{
+    public string Name { get; set; } 
+    protected int Age { get; set; }
+    private string id { }
+}
+
+public class Dog : Animal
+{
+    public void ShowInfo()
+    {
+        Console.WriteLine(Name);   //public修饰的可以继承过来
+        Console.WriteLine(Age);    //protected修饰的可以继承过来
+        Console.WriteLine(id);     //private修饰的不能继承！（报错）
+    }
+}
+```
+
+构造器不可继承，父类的构造方法，子类不能直接继承，必须通过base()显式调用。
+
+```c#
+using System;
+public class Animal
+{
+    //构造器
+   public Animal(string name)
+    {
+        Name = name;
+    }
+    public string Name;
+}
+
+public class Cat : Animal
+{
+    //构造器不能被继承，必须调用父类的构造器，否则编译报错
+    public Cat(string name) : base(name)
+    {
+        Name = name;
+    }
+}
+
+public class Program
+{
+    static void Main(string[] args)
+    {
+        Cat cat = new Cat("小猫");  //会先调用父类Animal构造器再执行Cat构造器
+        Console.WriteLine(cat.Name);  
+    }
+}
+```
+
+### 3、类的重写
+
+类的继承相当于类的横向扩展，类成员会越来越多。而类的重写就是类的纵向扩展，表现在类的方法的行为改变，版本升高。<br>
+类继承的例子：父类是「手机」，子类「智能手机」在手机基础上，新增了「拍照」「上网」功能。特点是父类功能不变，子类多了新功能
+
+```c#
+// 父类：手机
+public class Phone
+{
+    public void Call() { Console.WriteLine("打电话"); }
+}
+// 子类：智能手机（横向扩展）
+public class SmartPhone : Phone
+{
+    // 新增成员：拍照
+    public void TakePhoto() { Console.WriteLine("拍照"); }
+    // 新增成员：上网
+    public void SurfInternet() { Console.WriteLine("上网"); }
+}
+```
+
+类重写的例子：父类「手机」的「打电话」是按键拨号，子类「智能手机」把「打电话」改成了触屏拨号。子类修改父类已有成员的行为，用virtual+override实现。
+
+
+```c#
+// 父类：手机
+public class Phone
+{
+    // 标记为virtual，允许子类重写
+    public virtual void Call() { Console.WriteLine("按键拨号打电话"); }
+}
+// 子类：智能手机（纵向扩展/重写）
+public class SmartPhone : Phone
+{
+    // 重写父类方法，改变行为
+    public override void Call() { Console.WriteLine("触屏拨号打电话"); }
+}
+```
+
+与此同时还有类的隐藏这一概念，子类用 new 关键字，把父类的同名成员 “藏起来”，不修改父类逻辑。父类「手机」有「Call」，子类「老人机」也定义了一个「Call」，只在老人机视角下生效。
+
+```c#
+public class Phone
+{
+    public void Call() { Console.WriteLine("通用打电话"); }
+}
+public class OldPhone : Phone
+{
+    // 隐藏父类的Call方法
+    public new void Call() { Console.WriteLine("老人机大按键打电话"); }
+}
+```
+
+特点：和重写不同，隐藏不遵循多态，只有用子类类型引用时才会调用子类版本。<br>
+
+重写与隐藏的发生条件，必须同时满足 3 个条件：
+- 是函数成员（方法、属性、事件等，不是字段）
+- 子类对父类成员可见（不是 private）
+- 方法签名一致（方法名 + 参数类型 + 数量完全相同）
+
+### 4、类的多态
+
+多态（Polymorphism） = 同一个行为，不同对象表现出不同形态。
+当父类引用指向子类对象时，调用重写的方法，执行的是子类的实现，而非父类的实现。<br>
+多态的 3 个必要条件（缺一不可）:
+
+- 继承：必须有父类和子类的继承关系；
+- 重写：子类必须用 override 重写父类的 virtual/abstract 方法；
+- 父类引用指向子类对象：Parent p = new Child();
+
+```c#
+Phone p1 = new Phone();
+Phone p2 = new SmartPhone(); // 父类引用指向子类对象
+p1.Call(); // 输出：按键拨号打电话（看Phone对象）
+p2.Call(); // 输出：触屏拨号打电话（看SmartPhone对象）
+```
+
+在实际代码中，抽象类实现多态更为常用：
+
+```c#
+using System;
+using System.Numerics;
+// 抽象父类：无默认实现，强制子类重写
+public abstract class Animal
+{
+    public abstract void MakeSound(); // 抽象方法，必须被重写
+}
+public class Dog : Animal
+{
+    public override void MakeSound() => Console.WriteLine("汪汪汪");
+}
+public class Cat : Animal
+{
+    public override void MakeSound() => Console.WriteLine("喵喵喵");
+}
+// 测试
+Animal a1 = new Dog();
+Animal a2 = new Cat();
+a1.MakeSound(); // 汪汪汪
+a2.MakeSound(); // 喵喵喵
+```
+
+### 5、抽象类
+
+抽象类是至少含有一个抽象方法的类，类需要用abstract修饰，与抽象类对应的就是具体类（平常用的就是）。注意abstract不能是private的，因为抽象方法要通过子类继承后实现；抽象方法不能带方法体；抽像类不能实例化；抽象方法在C++中叫纯虚函数。
+
+```c#
+abstract class Student()  //抽象类（里面至少一个抽象方法，也可以包含不抽象的方法）
+{
+    abstract public void Study() ;  //抽象方法（必须在抽象类里）
+}
+```
+
+我们应该封装稳定不变、确定的成员，哪些不确定的有可能改变的成员就用抽象来修饰，后面的子类来实现。
+下面的代码表示的就是经典的示例，不建议这么搞：
+
+```c#
+//错误示例
+class Car
+{
+    public void Run()
+    {
+        Console.WriteLine("Car is Running");
+    }
+    public void Stop()
+    {
+        Console.WriteLine("Car is Stopped");
+    }
+}
+class Truck
+{
+    public void Run()
+    {
+        Console.WriteLine("Truck is Running"); //不建议Truck和Car一样的方法名
+    }
+    public void Stop()
+    {
+        Console.WriteLine("Turck is Stopped");
+    }
+}
+```
+
+以上示例Truck和Car一样的方法名，当代码量上去后就会难以维护。此时可以新定义一个Vehicle类作为Car和Truck的父类，子类继承父类后改写对应的方法实现。
+
+```c#
+using System;
+namespace Program
+{
+    class Program
+    {
+        static void Main(string[] args)
+        {
+            Vehicle car = new Car();
+            car.Run();
+            car.Stop();
+            Vehicle truck = new Truck();
+            truck.Run();
+            truck.Stop(); //没有重写Stop将输出Vehicle的Stop方法
+        }
+    }
+    //修改后
+    abstract class Vehicle
+    {
+        abstract public void Run();  //抽象方法要用override重写
+        public virtual void Stop()  //虚拟方法也嘚用override重写
+        {
+            Console.WriteLine("Stopped");
+        }
+
+    }
+    class Car : Vehicle //继承了抽象类，就必须实现抽象方法，否则自己得是抽象方法
+    {
+        public override void Run()  //必须用override来实现抽象方法
+        {
+            Console.WriteLine("Car is Running");
+        }
+        public override void Stop()  //重写父类方法
+        {
+            Console.WriteLine("Car is stopped");
+        }
+    }
+    class Truck : Vehicle//继承了抽象类，就必须实现抽象方法，否则自己得是抽象方法
+    {
+        public override void Run()//必须用override来实现抽象方法
+        {
+            Console.WriteLine("Truck is Running");
+        }
+        //没有重写Stop将输出Vehicle的Stop方法
+    }
+}
+```
+
+当然上面代码中Vehicle上面可以再订一个纯的抽象方法：
+
+
+```c#
+abstract class VehicleBase  //纯抽象类
+{
+    abstract public void Stop();
+    abstract public void Run();
+}
+```
+
+这种纯抽象类其实就是接口interface了
+
+```c#
+interface VehicleBase  //接口
+{
+    abstract public void Stop();
+    abstract public void Run();
+}
+```
+
+### 6、接口
+
+接口是一个特殊的类，接口里面的方法全部都是抽象类。接口的引入可以有效的降低程序的耦合度。耦合度高的代码最大问题是 “牵一发而动全身”，而接口通过 “面向接口编程”，遵循了 “开闭原则”（对扩展开放、对修改关闭），这也是设计模式的核心思想。比如做一个支付功能，最初只支持微信支付，如果直接依赖微信支付的具体类，后续要加支付宝支付，代码改动会很大，耦合度极高；但用接口封装后就能彻底的解耦。
+如以下接口实现的支付功能：
+
+```C#
+using System;
+//定义支付接口：只规定“要做支付”这个行为，不关心具体怎么支付
+public interface IPayment
+{
+    // 接口只定义方法签名，无实现
+    bool Pay(decimal amount);
+}
+//微信支付实现类：实现接口的具体逻辑
+public class WeChatPayment : IPayment
+{
+    public bool Pay(decimal amount)
+    {
+        Console.WriteLine($"微信支付{amount}元，扣减微信余额");
+        return true;
+    }
+}
+//支付宝支付实现类：新增实现类，完全不改动原有代码
+public class AliPay : IPayment
+{
+    public bool Pay(decimal amount)
+    {
+        Console.WriteLine($"支付宝支付{amount}元，扣减支付宝余额");
+        return true;
+    }
+}
+//调用方（订单服务）：只依赖接口，不依赖具体支付类
+public class OrderService
+{
+    // 接收接口类型参数，而非具体类
+    public void ProcessPayment(IPayment payment, decimal amount)
+    {
+        // 调用方只关心“支付”这个行为，不关心是微信还是支付宝
+        payment.Pay(amount);
+    }
+}
+// 测试代码
+class Program
+{
+    static void Main(string[] args)
+    {
+        OrderService orderService = new OrderService();
+        // 用微信支付
+        orderService.ProcessPayment(new WeChatPayment(), 100);
+        // 改用支付宝支付：只改实例化的类，OrderService的代码一行不用动
+        orderService.ProcessPayment(new AliPay(), 200);
+        // 后续加银联支付：只新增一个实现IPayment的UnionPay类即可，完全不改动调用方
+    }
+}
+```
+
+没有接口时：如果 OrderService 直接依赖 WeChatPayment 类，要加支付宝支付，就得修改 OrderService 的代码（比如加 if-else 判断），调用方和实现方强耦合；<br>
+有接口时：OrderService 只依赖 IPayment 接口，新增任何支付方式（银联、银行卡），只需要新增一个实现 IPayment 的类，调用方代码完全不用改 —— 这就是接口把 “调用逻辑” 和 “具体实现” 拆分开，降低了耦合度。<br>
+在开发的时候我们应该尽可能的“松耦合”。当然也得遵循“接口隔离原则”：<br>
+
+接口隔离原则：不让类实现不需要的接口方法，比如做打印机系统，要是把打印、扫描、复印都塞到一个接口里，普通打印机就得被迫实现扫描/复印方法（要么空实现要么抛异常），既臃肿又容易出错。
+
+```c#
+// 臃肿的接口：包含打印机、扫描仪、复印机的所有功能
+public interface IAllInOneMachine
+{
+    // 打印机功能
+    void Print(string content);
+    // 扫描仪功能
+    void Scan(string filePath);
+    // 复印机功能
+    void Copy(string content);
+}
+// 普通打印机：只需要打印功能，但被迫实现所有接口方法
+public class SimplePrinter : IAllInOneMachine
+{
+    public void Print(string content)
+    {
+        Console.WriteLine($"打印：{content}");
+    }
+// 被迫实现不需要的方法，只能空实现/抛异常
+    public void Scan(string filePath)
+    {
+        throw new NotSupportedException("普通打印机不支持扫描");
+    }
+public void Copy(string content)
+    {
+        throw new NotSupportedException("普通打印机不支持复印");
+    }
+}
+// 测试：调用不需要的方法会报错，代码臃肿且易出问题
+class Program
+{
+    static void Main(string[] args)
+    {
+        IAllInOneMachine printer = new SimplePrinter();
+        printer.Print("简历"); // 正常
+        printer.Scan("test.jpg"); // 报错：不支持扫描
+    }
+}
+```
+
+但把接口拆成 IPrintable、IScannable、ICopyable 三个专用接口，普通打印机只实现 IPrintable，一体机实现全部，这样每个类只依赖自己需要的接口，代码更简洁、易维护，也从编译层面避免了调用不存在的功能。
+
+```c#
+// 拆分后的专用接口：每个接口只包含单一功能
+using System;
+
+public interface IPrintable
+{
+    void Print(string content); // 仅打印功能
+}
+public interface IScannable
+{
+    void Scan(string filePath); // 仅扫描功能
+}
+public interface ICopyable
+{
+    void Copy(string content); // 仅复印功能
+}
+// 普通打印机：只实现打印接口，无需关心其他功能
+public class SimplePrinter : IPrintable
+{
+    public void Print(string content)
+    {
+        Console.WriteLine($"打印：{content}");
+    }
+}
+// 多功能一体机：实现所有接口（因为它确实需要这些功能）
+public class AllInOnePrinter : IPrintable, IScannable, ICopyable
+{
+    public void Print(string content)
+    {
+        Console.WriteLine($"打印：{content}");
+    }
+    public void Scan(string filePath)
+    {
+        Console.WriteLine($"扫描文件到：{filePath}");
+    }
+    public void Copy(string content)
+    {
+        Console.WriteLine($"复印：{content}");
+    }
+}
+// 测试：客户端只调用自己需要的接口方法，无冗余
+class Program
+{
+    static void Main(string[] args)
+    {
+        // 普通打印机：只暴露打印功能
+        IPrintable simplePrinter = new SimplePrinter();
+        simplePrinter.Print("简历"); // 正常
+                                   // 编译报错：IPrintable接口没有Scan方法，从根源避免误用
+                                   // simplePrinter.Scan("test.jpg");
+                                   // 一体机：可调用所有功能
+        AllInOnePrinter allInOne = new AllInOnePrinter();
+        allInOne.Print("合同");
+        allInOne.Scan("doc.pdf");
+        allInOne.Copy("身份证");
+    }
+}
+```
+
+但是不能玩的太过了，如果弄出一大堆单一接口，类接口的颗粒度就太小了，需要注意平衡。
+
+### 7、反射和依赖注入
+
+
+
+
+
+
+
+
+
+
 
 
 
