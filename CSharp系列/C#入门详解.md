@@ -1,4 +1,3 @@
-<img width="966" height="899" alt="image" src="https://github.com/user-attachments/assets/32f7f5ab-75be-4aee-886d-c99e398c702e" /><img width="976" height="161" alt="image" src="https://github.com/user-attachments/assets/c194e822-c717-42ab-94d6-0cffd9373e73" /><img width="966" height="51" alt="image" src="https://github.com/user-attachments/assets/c0719d95-f532-4f14-aecb-13b9d8e21826" /><img width="658" height="26" alt="image" src="https://github.com/user-attachments/assets/89c89318-9e24-4576-af2c-bf896e37d794" /><img width="966" height="51" alt="image" src="https://github.com/user-attachments/assets/b3527b74-7e6e-430d-981c-c746b4765289" /><img width="966" height="56" alt="image" src="https://github.com/user-attachments/assets/b3532a00-f188-44e1-b5af-691f525fce50" /><img width="547" height="28" alt="image" src="https://github.com/user-attachments/assets/a9f17a63-67dc-47c1-9da8-6f890a5309e8" /><img width="966" height="51" alt="image" src="https://github.com/user-attachments/assets/c37b7963-8bc4-4827-92e6-95ed1541f5dc" /><img width="782" height="26" alt="image" src="https://github.com/user-attachments/assets/08c4c076-1d0e-4d09-a955-e7d87c00f745" />
 # 一、Hello World
 
 
@@ -1809,19 +1808,423 @@ class Program
 ### 7、反射和依赖注入
 
 
+反射就是程序在运行时，自己去查看一个类的结构（有哪些方法、字段），并直接调用它，而不是在写代码时就写死。反射就像照镜子，程序运行时通过名字就能发现类的结构、动态创建对象并调用方法。它能实现解耦，让我们通过配置（字符串）来控制调用具体哪个类，而不是写死代码。
+
+
+```c#
+// 1. 定义两个类
+public class Hamburger { public void Make() { Console.WriteLine("做汉堡"); } }
+public class ChickenWings { public void Make() { Console.WriteLine("做烤翅"); } }
+// 2. 反射核心逻辑
+public static void Cook(string dishName)
+{
+    // 不用 if-else 判断是谁
+    // 直接根据字符串名字，去内存里“照镜子”找到对应的类
+    var type = Type.GetType(dishName);
+    var instance = Activator.CreateInstance(type); // 动态创建对象
+// 动态调用方法
+    type.GetMethod("Make").Invoke(instance, null);
+}
+// 3. 调用
+Cook("Hamburger"); // 输出：做汉堡
+Cook("ChickenWings"); // 输出：做烤翅
+```
+
+依赖注入：A 类需要用到 B 类，B 类不要自己造，而是由外部传进来。DI 容器底层主要靠反射来实现，它通过配置或特性（Attribute）扫描程序集，动态创建对象并注入到需要的地方，从而实现了极低的耦合度。<br>
+假设有一个 “电脑” 类（Computer），它需要 “显卡”（GPU）才能工作。<br>
+不使用DI是这样的：
+
+
+```c#
+public class Computer
+{
+    // 电脑自己去买显卡（强耦合）
+    private NVidiaGPU gpu = new NVidiaGPU();
+public void ShowImage() { gpu.Render(); }
+}
+```
+
+如果想换一张 AMD 的显卡，得拆开电脑（修改 Computer 类的代码），把 NVidia 拆下来，装上 AMD。使用DI是这样的：
+
+
+```c#
+public class Computer
+{
+    // 只规定需要显卡，但不关心是谁家的
+    private IGPU gpu;
+// 显卡由外部组装师傅传进来（注入）
+    public Computer(IGPU gpu)
+    {
+        this.gpu = gpu;
+    }
+public void ShowImage() { gpu.Render(); }
+}
+// 调用方：
+var myPC = new Computer(new AMDGPU()); // 传入AMD卡
+var workPC = new Computer(new NVidiaGPU()); // 传入NVIDIA卡
+```
+
+此时电脑不用拆改，想换什么显卡，到手的时候递进去就行。
 
 
 
+# 十四：泛型
+
+泛型就是泛化的数据类型，跟具体是相对的，类似于C++的模板+STL。<br>
+泛型 = 「代码模板」，写代码时不把类型写死，用的时候再指定具体类型，一套代码适配所有类型。<br>
+在泛型出现前，想写一个「通用方法 / 类」，只能用 object 类型：
+
+```c#
+// 用 object 写的通用加法（有严重问题）
+public static object Add(object a, object b)
+{
+    return (int)a + (int)b; // 硬转类型，风险极高
+}
+```
+
+这种object类型性能差（装箱拆箱频繁）、安全性差（例如匹配个string类型就炸了）,泛型就是拿来解决这个问题的。
+
+<img width="458" height="226" alt="image" src="https://github.com/user-attachments/assets/17a9a39e-ea2a-4602-9539-c9609aa9f132" />
+
+```c#
+using System.Reflection.Metadata;
+namespace Program
+{
+    internal class Fuck
+    {
+        public static void Main(string[] args)
+        {
+            Apple apple = new Apple() { Color = "red"};  //一个红苹果
+            AppleBox box = new AppleBox() { Cargo = apple };    
+            Console.WriteLine(box.Cargo.Color);
+            Book book = new Book() { name = "New Book"}; //一本新书
+            BookBox box2 = new BookBox() { Cargo = book };
+            Console.WriteLine(box2.Cargo.name);
+        }
+}
+    class Book
+    {
+        public string name { get; set; }
+    }
+    class Apple  //苹果
+    {
+        public string Color {  get; set; }
+    }
+    class AppleBox   //箱子（装苹果）
+    {
+        public Apple Cargo {  get; set; }
+    }
+    class BookBox   //装书箱子
+    { 
+        public Book Cargo { get; set; }
+    }
+}
+```
+
+可以发现这段代码已经出现了“类型膨胀”的问题，两种产品需要两种对应的盒子，如果是1000钟产品呢，那就非常麻烦了。解决方法可以定义一个Box类，再里面添加对应类型的成员。但是这样又会造成“成员膨胀”。这个时候就需要用泛型类了。
+
+### 1、泛型类
+
+泛型类就是类名后面加 <T>，整个类里都能用 T。
+
+```c#
+using System.Reflection.Metadata;
+namespace Program
+{
+    internal class Fuck
+    {
+        public static void Main(string[] args)
+        {
+            Apple apple = new Apple() {Color = "Red" };
+            Book book = new Book() { name = "New Book"};
+            Box<Apple> box1 = new Box<Apple>() { Cargo = apple };
+            Box<Book> box2 = new Box<Book>() { Cargo = book };
+            Console.WriteLine(box1.Cargo.Color);
+            Console.WriteLine(box2.Cargo.name);
+        }
+}
+    class Book
+    {
+        public string name { get; set; }
+    }
+    class Apple  //苹果
+    {
+        public string Color {  get; set; }
+    }
+    class Box<TCargo>   //箱子（泛型类）
+    {
+        public TCargo Cargo { get; set; }
+    }
+}
+```
+
+当然还有类似于C++STL的系统定义好的泛型类：
+
+```c#
+// List<T> — 普通列表
+// Dictionary<TKey,TValue> — 键值对快速查找
+// HashSet<T> — 去重、快速判断存在
+// Queue<T> — 排队（先进先出）
+// Stack<T> — 栈（先进后出）
+```
+
+### 2、泛型接口
+
+- 普通接口：类型写死，不通用，要重复写很多接口。
+- 泛型接口：类型不写死，一套通用，安全、简洁、性能高。
+
+```c#
+using System.Reflection.Metadata;
+namespace Program
+{
+    internal class Fuck
+    {
+        public static void Main(string[] args)
+        {
+            // 使用固定 int 的类
+            MyClass c = new MyClass();
+            c.Add(100);
+            Console.WriteLine(c.Get()); // 输出100
+// 使用泛型类（可以任意指定类型）
+            MyGenericClass<string> c2 = new MyGenericClass<string>();
+            c2.Add("Hello");
+            Console.WriteLine(c2.Get()); // 输出Hello
+        }
+}
+    // 泛型接口：接口名字后面 <T>
+    interface IMyInterface<T>
+    {
+        // 方法参数、返回值都可以用 T
+        void Add(T item);
+        T Get();
+    }
+// 类实现泛型接口，T → int
+    class MyClass : IMyInterface<int>
+    {
+        private int _value;
+public void Add(int item)
+        {
+            _value = item;
+        }
+public int Get()
+        {
+            return _value;
+        }
+    }
+// 泛型类 实现 泛型接口，T 继续传递
+    class MyGenericClass<T> : IMyInterface<T>
+    {
+        private T _value;
+public void Add(T item)
+        {
+            _value = item;
+        }
+public T Get()
+        {
+            return _value;
+        }
+    }
+}
+```
+
+### 3、泛型方法
+
+就是方法自己带 <T>，一个方法能处理任意类型。
+
+```c#
+using System.Reflection.Metadata;
+namespace Program
+{
+    internal class Fuck
+    {
+        public static void Main(string[] args)
+        {
+            Print<int>(10);      // T = int
+            Print<string>("你好");// T = string
+            Print<double>(3.14); // T = double
+        }
+        // 泛型方法：方法名后面 <T>
+        static void Print<T>(T value)
+        {
+            Console.WriteLine(value);
+        }
+    }
+}
+```
+
+### 4、泛型委托
+
+最常用的泛型委托就是Action和Func，这个不多说，以下说一下自定义的泛型委托
+
+```c#
+using System.Reflection.Metadata;
+namespace Program
+{
+    internal class Fuck
+    {
+        public static void Main(string[] args)
+        {
+            MyDelegate<int, int> tmp = TMP;
+            int res = tmp(200);
+            Console.WriteLine(res);
+        }
+static int TMP(int x)
+        {
+            return x;
+        }
+// 自己定义泛型委托：输入 T，返回 TResult
+        delegate TResult MyDelegate<T, TResult>(T value);
+}
+}
+```
+
+# 十五、Lambda表达式
+
+Lambda说白了就是就是匿名方法，还是inline内联的，很多小方法比如算个圆面积算个体积什么的，这种就没必要开一个不匿名的方法占空间，直接使用lambda表达式就行，需要知道lambda操作符=>，专门用来写短小的方法，配合委托、泛型、集合用。这像一个语法糖，可以简化方法的编写。<br>
+格式：(参数) => 要做的事<br>
+写法：
+- 无参数   ：  () => Console.WriteLine("hello");
+- 一参数   ：   x => x * 10
+- 多参数 ：    (a,b) => a + b
+- 多行代码：  (a,b) => { int sum = a + b; return sum * 2; };
+
+配合委托的例子如下：
+```c#
+using System.Reflection.Metadata;
+namespace Program
+{
+    class Fuck
+    {
+        delegate int MyDele(int a, int b);
+        static void Main()
+        {
+            // 左边：委托类型
+            // 右边：Lambda 就是一个匿名方法！
+            MyDele add = (a, b) => a + b;
+            MyDele mul = (a, b) => a * b;
+            Console.WriteLine(add(2, 3));  // 5
+            Console.WriteLine(mul(2, 3));  // 6
+        }
+    }
+}
+```
+
+配合泛型委托（可以不同自己定义delegate了）：
+
+```c#
+using System.Reflection.Metadata;
+namespace Program
+{
+    class Fuck
+    {
+    static void Main()
+        {
+            // 定义：输入两个 int，返回 int
+            Func<int, int, int> calc = (a, b) => a + b;
+            int result = calc(10, 20); // 30
+            // 输入 string，无返回
+            Action<string> show = s => Console.WriteLine(s);
+            show("hello lambda");
+        }
+    }
+}
+```
 
 
+配合泛型集合：
+
+```c#
+using System.Reflection.Metadata;
+namespace Program
+{
+    class Fuck
+    {
+static void Main()
+        {
+            List<int> list = new List<int> { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10 };
+            //筛选（Where）
+            // 选出 >5 的数字
+            var big = list.Where(x => x > 5);
+            // x 是列表里每一个元素
+            //筛选+计算（Where + Select）
+            // 选出偶数，再乘以 2
+            var evenDouble = list.Where(x => x % 2 == 0).Select(x => x * 2);
+            //有一个满足就是true（Any）
+            bool hasBig = list.Any(x => x > 100); // false
+            //全部满足才能true（All）
+            bool allBig = list.All(x => x > 0); // true
+}
+    }
+}
+```
 
 
+# 十六、LINQ
+
+LINQ = 给集合 / 数据用的 “超级查询语言”，可以让你像查数据库一样查 List、数组，代码简单、好读、好写。<br>
 
 
+例如需要在List里面找出大于5的数字：
 
+```c#
+namespace Program
+{
+    class Fuck
+    {
+    static void Main()
+        {
+            List<int> list = new List<int> { 1, 2, 3, 6, 7, 8 };
+            List<int> result = new List<int>();
+            foreach (int num in list)
+            {
+                if (num > 5)
+                {
+                    result.Add(num);
+                }
+            }
+        }
+    }
+}
+```
 
+如果使用LINQ：
 
+```c#
+namespace Program
+{
+    class Fuck
+    {
+    static void Main()
+        {
+            List<int> list = new List<int> { 1, 2, 3, 6, 7, 8 };
+            var result = list.Where(num => num > 5);  //直接筛选
+            foreach (int num in result)
+            {
+                Console.WriteLine(num);
+            }
+        }
+    }
+}
+```
+LINQ的其他基本操作：
 
+```c#
+namespace Program
+{
+    class Fuck
+    {
+    static void Main()
+        {
+            List<int> list = new List<int> { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10 };
+            list.Where(x => x > 5);   // 找出所有大于5的数
+            list.OrderBy(x => x);     // 从小到大排序
+            list.Select(x => x * 2);  // 每个数 ×2
+            list.Any(x => x > 5);     // 有没有一个大于5？
+            list.All(x => x > 5);     // 全部都大于5？
+        }
+    }
+}
+```
 
 
 
