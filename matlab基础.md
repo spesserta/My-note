@@ -4,7 +4,7 @@
 在脚本写完代码就可以ctr+s建即可保存。<br>    
 * `%% `和`% `注释   
 * `clc` 清除命令窗口
-* `clear all` 清除右侧工作区
+* `clear all` 清除右侧工作区 
 * `disp()`输出某变量   
 ![image](https://github.com/spesserta/My-note/assets/138494873/da23e232-46ef-4f76-af90-ecce189483e0)
 
