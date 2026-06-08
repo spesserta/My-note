@@ -533,4 +533,153 @@ public class RegisterViewModel : INotifyPropertyChanged, INotifyDataErrorInfo
 手写INotifyDataErrorInfo的字典管理和事件触发逻辑非常繁琐。在实际企业开发中，建议使用 Prism 框架提供的 ErrorsContainer<T> 类，或者 CommunityToolkit.Mvvm 中的 ObservableValidator 基类。它们已经封装好了底层的字典管理和异步验证逻辑，只需要专注于编写验证规则即可。
 
 
+### 五、用户控件和自定义控件
+
+
+#### 1、用户控件UserControl（搭积木）
+
+用户控件本质是 XAML 和后台代码的组合封装。你像设计普通窗口一样，把现有的基础控件（如按钮、文本框、图片等）拖拽组合在一起，形成一个固定的界面模块，UI 结构是固定的，外部只能修改它暴露出来的普通属性（如颜色、文本），这种控件比较简单易用，但是外观上的设计会受到限制。
+
+<img width="937" height="653" alt="image" src="https://github.com/user-attachments/assets/a9d93d78-781c-4c99-b97d-767d03d7c30f" />
+
+
+假设需要做一个登录界面，用户控件就像是“搭积木”，可以把账号输入框、密码输入框和登录按钮组合在一起，封装成一个独立的模块。现将基础的 TextBox、PasswordBox 和 Button 组合成一个登录面板。
+
+```xml
+<UserControl x:Class="Module1.Views.UserControl1"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    <Border BorderBrush="LightGray" BorderThickness="1" CornerRadius="5" Padding="20">
+        <StackPanel Width="300">
+            <TextBlock Text="用户登录" FontSize="20" FontWeight="Bold" Margin="0,0,0,15" HorizontalAlignment="Center"/>
+
+            <!-- 账号输入 -->
+            <TextBlock Text="账号:" Margin="0,0,0,5"/>
+            <TextBox Text="{Binding Username, UpdateSourceTrigger=PropertyChanged}" Height="30" Padding="5"/>
+
+            <!-- 密码输入 -->
+            <TextBlock Text="密码:" Margin="0,10,0,5"/>
+            <!-- 注意：PasswordBox 不支持直接绑定，通常通过附加属性或事件传递-->
+            <PasswordBox x:Name="PwdBox" Height="30" Padding="5"/>
+
+            <!-- 登录按钮 -->
+            <Button Content="登 录" 
+                    Command="{Binding LoginCommand}" 
+                    CommandParameter="{Binding ElementName=PwdBox}"
+                    Height="35" Margin="0,20,0,0" Background="#0078D7" Foreground="White"/>
+        </StackPanel>
+    </Border>
+</UserControl>
+```
+
+
+<img width="865" height="415" alt="image" src="https://github.com/user-attachments/assets/c7f31ffb-b878-4c3c-b87d-a0cc1bac2287" />
+
+```c#
+using GalaSoft.MvvmLight.Command;
+using System;
+using System.Collections.Generic;
+using System.ComponentModel;
+using System.Linq;
+using System.Runtime.CompilerServices;
+using System.Text;
+using System.Threading.Tasks;
+using System.Windows;
+using System.Windows.Controls;
+using System.Windows.Input;
+
+namespace Module1.ViewModels
+{
+    public class LoginViewModel : INotifyPropertyChanged
+    {
+        private string _username;
+        public string Username
+        {
+            get => _username;
+            set { _username = value; OnPropertyChanged(); }
+        }
+
+        //登录命令
+        public ICommand LoginCommand { get; }
+
+        public LoginViewModel()
+        {
+            LoginCommand = new RelayCommand<object>(ExecuteLogin);
+        }
+
+        private void ExecuteLogin(object parameter)
+        {
+            //从命令参数中获取密码框的值
+            if (parameter is PasswordBox pwdBox)
+            {
+                string password = pwdBox.Password;
+
+                //模拟登录验证逻辑
+                if (Username == "admin" && password == "123456")
+                {
+                    MessageBox.Show("登录成功！");
+                    //触发事件通知主窗口进行页面跳转
+                }
+                else
+                {
+                    MessageBox.Show("账号或密码错误！");
+                }
+            }
+        }
+
+        //INotifyPropertyChanged 实现...
+        public event PropertyChangedEventHandler PropertyChanged;
+        protected void OnPropertyChanged([CallerMemberName] string name = null)
+            => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
+    }
+}
+```
+
+
+封装好之后，就可以像使用原生按钮一样，在任何地方轻松调用这个登录控件了。
+
+```xml
+<Window x:Class="YourNamespace.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:local="clr-namespace:YourNamespace">
+    
+    <Window.DataContext>
+        <local:LoginViewModel />
+    </Window.DataContext>
+
+    <Grid>
+        <!-- 直接像搭积木一样把登录控件放进来 -->
+        <local:LoginControl HorizontalAlignment="Center" VerticalAlignment="Center"/>
+    </Grid>
+</Window>
+```
+
+
+#### 2、自定义控件CustomCtrol（造零件）
+
+
+该控件继承自 Control 类。它本身是“无皮肤”的，没有默认的 XAML 界面。它的逻辑与外观完全分离，必须依赖 ControlTemplate（控件模板）来定义视觉结构。开发者可以随意改变它的长相，而无需修改任何 C# 逻辑代码。这种控件十分的灵活但是上手难。
+
+
+
+<img width="930" height="652" alt="image" src="https://github.com/user-attachments/assets/5c8302bd-8661-4dad-90c7-f0c19b153b30" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
