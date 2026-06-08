@@ -24,7 +24,9 @@ WPF是微软推出的用于构建Windows桌面应用程序的UI框架。可以�
 - Winform的布局主要依靠绝对坐标（left、right、Top），辅以”停靠“和”锚定“来应对窗口大小的变化，创建复杂的流式布局很难
 - WPF的布局由容器面板决定，不同的面板提供了不同的布局逻辑，使得构建能够自适应不同窗口大小和屏幕分辨率的动态布局变得非常的简单自然
 
-### 二、xaml
+### 二、MVVM
+
+MVVM模式专门为WPF设计，包含Model（数据模型）、View（界面）、ViewModel（中间层业务逻辑）。相比于MVC的Model->Control->View 这个单向的过程，MVVM是Model<->ViewModel<->View这双向的过程。
 
 
 
