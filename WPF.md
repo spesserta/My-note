@@ -1503,7 +1503,475 @@ namespace WpfApp1 // 确保命名空间与你的项目一致
 
 
 
-### 十一 Converter
+### 十一、Converter转换器
+
+
+Converter转换器就是进行数据源和UI界面之间的转换,比如"是否可见"在C#中是bool类型变量表示的,但是到了UI界面就是用visablity表示的,他俩之间需要一个converter来进行类型转换.
+
+
+#### 1、Converter的用法
+
+如果要自定义一个转换器就需要继承IValueConverter类,以下举例bool类型转string类型的方法
+
+```c#
+public class BoolToStringConverter : IValueConverter
+ {
+     //数据源->界面显示的转换
+     public object Convert(object value , Type targetType , object  parameter , System.Globalization.CultureInfo culture)
+     {
+         if(value is bool boolValue)
+         {
+             return boolValue ? "是":"否";
+         }
+         return "未知";
+     }
+
+     //界面输入->数据源的转换(双向绑定需要实现这个方法)
+     public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
+     {
+         if(value is string stringValue)
+         {
+             return stringValue == "是";
+         }
+         return false;
+     }
+ }
+```
+转换器在.cs文件中定义好后在xaml文件中需要先在资源中定义转换器然后使用转换器
+
+```xml
+<Window x:Class="WpfApp1.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" xmlns:Local="clr-namespace:WpfApp1"
+        Title="WPF学习示例" Height="400" Width="600">
+    <Window.Resources>
+        <!--在资源中定义转换器-->
+        <Local:BoolToStringConverter x:Key="BoolToStringConverter"/>
+    </Window.Resources>
+
+    <StackPanel Margin="20">
+        <CheckBox x:Name="isOnlineCheckBox" Content="设备在线" IsChecked="True"/>
+
+        <!--使用转换器-->
+        <TextBlock Text="{Binding ElementName=isOnlineCheckBox, Path=IsChecked,
+                            Converter={StaticResource BoolToStringConverter}}"
+                   FontSize="16"  FontWeight="Bold" Margin="0,10,0,10"/>
+    </StackPanel>
+</Window>
+```
+
+
+<img width="642" height="423" alt="image" src="https://github.com/user-attachments/assets/19e55092-7e8d-4fde-83d4-675795b4c7de" />
+
+
+#### 2、常见的转换器->布尔值转换器
+
+
+第一个就是布尔值转颜色非常常见:
+
+```c#
+using System;
+using System.Globalization;
+using System.Windows;
+using System.Windows.Data;
+
+namespace WpfApp1
+{
+    public class BoolToVisibilityConverter : IValueConverter
+    {
+        // True 时显示的可见性 (默认为 Visible)
+        public Visibility TrueValue { get; set; } = Visibility.Visible;
+
+        // False 时显示的可见性 (默认为 Collapsed)
+        public Visibility FalseValue { get; set; } = Visibility.Collapsed;
+
+        public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+            if (value is bool boolValue)
+            {
+                return boolValue ? TrueValue : FalseValue;
+            }
+            return FalseValue;
+        }
+
+        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+            if (value is Visibility visibility)
+            {
+                return visibility == TrueValue;
+            }
+            return false;
+        }
+    }
+}
+```
+
+假设有一个 CheckBox，勾选时文字变绿，取消时变红。
+
+```xml
+<Window.Resources>
+    <!-- 注册转换器 -->
+    <local:BoolToColorConverter x:Key="BoolToColorConverter"/>
+</Window.Resources>
+
+<StackPanel Margin="20">
+    <CheckBox x:Name="StatusCheck" Content="设备状态正常" IsChecked="True"/>
+
+    <!-- 将 IsChecked 的值传给转换器，转换结果赋值给 Foreground -->
+    <TextBlock Text="当前状态显示"
+               Margin="0,10,0,0"
+               FontSize="20"
+               Foreground="{Binding ElementName=StatusCheck, Path=IsChecked, Converter={StaticResource BoolToColorConverter}}"/>
+</StackPanel>
+```
+
+还有一个是布尔值转可见性的写法也常见,暂时不写这个了.
+
+
+#### 3、常见的转换器->数值范围转换器
+
+略
+
+
+
+#### 4、常见的转换器->枚举转换器
+
+略
+
+
+#### 5、常见的转换器->时间戳转换器
+
+略
+
+
+### 十二、动画
+
+动画在上位机应用中主要在进度条显示和报警提示这边,核心原理是：在一段时间内，不断改变某个依赖属性的值。常用动画如下:
+
+- DoubleAnimation 数值变化动画,最常用的,只要是涉及到数值的变化都用这个
+- ColorAnimation 颜色变化动画
+- ThicknessAnimation 边距变化动画
+- PointAnimation 点位置动画
+
+
+```xml
+<Window x:Class="WpfApp1.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="WPF 动画基础演示" Height="500" Width="800">
+
+    <StackPanel Margin="20">
+        <TextBlock Text="点击按钮触发动画" FontSize="16" Margin="0,0,0,10"/>
+
+        <!-- 1. DoubleAnimation 演示区 -->
+        <Border BorderBrush="Gray" BorderThickness="1" Padding="10" Margin="0,5">
+            <StackPanel>
+                <TextBlock Text="1. DoubleAnimation (数值变化): 宽度从 50 变到 300" FontWeight="Bold"/>
+                <Button Content="播放宽度动画" Width="100" Margin="5">
+                    <Button.Triggers>
+                        <EventTrigger RoutedEvent="Button.Click">
+                            <BeginStoryboard>
+                                <Storyboard>
+                                    <!-- 目标属性是 Width，类型是 double -->
+                                    <DoubleAnimation Storyboard.TargetProperty="Width"
+                                                     From="50" To="300" Duration="0:0:1"
+                                                     AutoReverse="True" RepeatBehavior="Forever"/>
+                                </Storyboard>
+                            </BeginStoryboard>
+                        </EventTrigger>
+                    </Button.Triggers>
+                </Button>
+            </StackPanel>
+        </Border>
+
+        <!-- 2. ColorAnimation 演示区 -->
+        <Border BorderBrush="Gray" BorderThickness="1" Padding="10" Margin="0,5">
+            <StackPanel>
+                <TextBlock Text="2. ColorAnimation (颜色变化): 背景色循环渐变" FontWeight="Bold"/>
+                <Button Content="播放颜色动画" Width="150" Height="40" Margin="5">
+                    <Button.Background>
+                        <SolidColorBrush x:Name="ColorTargetBrush" Color="LightBlue"/>
+                    </Button.Background>
+                    <Button.Triggers>
+                        <EventTrigger RoutedEvent="Button.Click">
+                            <BeginStoryboard>
+                                <Storyboard>
+                                    <!-- 注意：不能直接 TargetProperty="Background"，必须是 Background.Color -->
+                                    <ColorAnimation Storyboard.TargetProperty="(Button.Background).(SolidColorBrush.Color)"
+                                                    From="LightBlue" To="Tomato" Duration="0:0:1"
+                                                    AutoReverse="True" RepeatBehavior="Forever"/>
+                                </Storyboard>
+                            </BeginStoryboard>
+                        </EventTrigger>
+                    </Button.Triggers>
+                </Button>
+            </StackPanel>
+        </Border>
+
+        <!-- 3. ThicknessAnimation 演示区 -->
+        <Border BorderBrush="Gray" BorderThickness="1" Padding="10" Margin="0,5">
+            <StackPanel>
+                <TextBlock Text="3. ThicknessAnimation (边距/厚度变化): 边框变粗 + 内容挤压" FontWeight="Bold"/>
+                <Button Content="播放边框动画" Width="150" Height="40" Margin="5" BorderBrush="Black">
+                    <Button.Triggers>
+                        <EventTrigger RoutedEvent="Button.Click">
+                            <BeginStoryboard>
+                                <Storyboard>
+                                    <!-- 目标属性是 BorderThickness -->
+                                    <ThicknessAnimation Storyboard.TargetProperty="BorderThickness"
+                                                        From="1" To="15" Duration="0:0:0.8"
+                                                        AutoReverse="True" RepeatBehavior="Forever"/>
+                                </Storyboard>
+                            </BeginStoryboard>
+                        </EventTrigger>
+                    </Button.Triggers>
+                </Button>
+            </StackPanel>
+        </Border>
+
+        <!-- 4. PointAnimation 演示区 -->
+        <Border BorderBrush="Gray" BorderThickness="1" Padding="10" Margin="0,5">
+            <StackPanel>
+                <TextBlock Text="4. PointAnimation (点位置变化): 椭圆沿路径移动" FontWeight="Bold"/>
+                <Canvas Width="300" Height="60" Background="#F0F0F0" Margin="5">
+                    <Ellipse Width="20" Height="20" Fill="Orange" Canvas.Left="0" Canvas.Top="20">
+                        <Ellipse.RenderTransform>
+                            <TranslateTransform x:Name="MovePoint"/>
+                        </Ellipse.RenderTransform>
+                        <Ellipse.Triggers>
+                            <EventTrigger RoutedEvent="Ellipse.Loaded">
+                                <BeginStoryboard>
+                                    <Storyboard>
+                                        <!-- 改变 TranslateTransform 的 X,Y 坐标 -->
+                                        <PointAnimation Storyboard.TargetProperty="(UIElement.RenderTransform).(TranslateTransform.X),(UIElement.RenderTransform).(TranslateTransform.Y)"
+                                                        Storyboard.TargetName="MovePoint"
+                                                        From="0,0" To="250,0" Duration="0:0:2"
+                                                        AutoReverse="True" RepeatBehavior="Forever"/>
+                                    </Storyboard>
+                                </BeginStoryboard>
+                            </EventTrigger>
+                        </Ellipse.Triggers>
+                    </Ellipse>
+                </Canvas>
+            </StackPanel>
+        </Border>
+
+    </StackPanel>
+</Window>
+```
+
+<img width="890" height="518" alt="image" src="https://github.com/user-attachments/assets/8b7af9ec-dbbd-441a-9771-86bb71eb15ed" />
+
+
+
+
+### 十三、Resource资源
+
+
+#### 1、资源的使用
+
+资源可以看成在编程时定义的“变量”。与其每次需要用到某个颜色、某段文字或某种样式时都重新写一遍代码，不如把它定义为一个资源，然后给它起个名字（Key），以后在任何地方通过这个名字引用它即可。每个资源必须有一个唯一的 Key，就像身份证号，用来在别处找到它。
+
+
+资源的使用如下:
+```xml
+<Window x:Class="WpfApp1.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:system="clr-namespace:System;assembly=mscorlib"
+        Title="资源演示" Height="350" Width="500">
+
+    <!-- Window.Resources: 这里的资源可以被窗口内的所有子控件使用 -->
+    <Window.Resources>
+
+        <!-- 1. 字符串资源 (通常用于文本统一管理) -->
+        <system:String x:Key="AppTitle">我的超级应用</system:String>
+
+        <!-- 2. 颜色/画刷资源 (最常用) -->
+        <SolidColorBrush x:Key="PrimaryColor" Color="#FF2196F3"/>
+        <SolidColorBrush x:Key="WarningColor" Color="OrangeRed"/>
+
+        <!-- 3. 尺寸资源 -->
+        <system:Double x:Key="StandardFontSize">20</system:Double>
+        <Thickness x:Key="StandardMargin">10</Thickness>
+
+        <!-- 4. 样式资源 (组合了上面的资源) -->
+        <Style x:Key="MyButtonStyle" TargetType="Button">
+            <Setter Property="Background" Value="{StaticResource PrimaryColor}"/>
+            <Setter Property="Foreground" Value="White"/>
+            <Setter Property="FontSize" Value="{StaticResource StandardFontSize}"/>
+            <Setter Property="Margin" Value="{StaticResource StandardMargin}"/>
+            <Setter Property="Padding" Value="15,5"/>
+        </Style>
+
+    </Window.Resources>
+
+    <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center">
+
+        <!-- 使用字符串资源 -->
+        <TextBlock Text="{StaticResource AppTitle}"
+                   FontSize="24"
+                   Margin="0,0,0,20"
+                   HorizontalAlignment="Center"/>
+
+        <!-- 使用样式资源 -->
+        <Button Content="普通按钮" Style="{StaticResource MyButtonStyle}"/>
+
+        <!-- 直接使用画刷资源 -->
+        <Border Background="{StaticResource WarningColor}"
+                Height="50"
+                Margin="10"
+                CornerRadius="5">
+            <TextBlock Text="警告区域"
+                       Foreground="White"
+                       VerticalAlignment="Center"
+                       HorizontalAlignment="Center"/>
+        </Border>
+
+    </StackPanel>
+</Window>
+```
+
+
+
+<img width="545" height="387" alt="image" src="https://github.com/user-attachments/assets/e5d37401-7dff-428b-9c86-5f88fd485a4b" />
+
+
+
+#### 2、静态引用和动态引用
+
+
+- {StaticResource ...}：静态引用。程序启动时加载一次，之后即使资源变了，界面也不会变。性能较好，适用于大多数情况。
+- {DynamicResource ...}：动态引用。运行时如果资源被修改了，界面会立即更新。常用于主题切换。
+
+
+<img width="1248" height="306" alt="image" src="https://github.com/user-attachments/assets/6c403a2a-e10f-4c0d-8d03-4f5b3de99989" />
+
+
+
+#### 3、资源的作用域
+
+- 写在 <Window.Resources> 里，整个窗口都能用。
+- 写在 <Application.Resources> (App.xaml) 里，整个软件的所有窗口都能用（全局资源）。
+- 写在 <Grid.Resources> 里，只有这个 Grid 内部能用
+
+
+```xml
+<!-- 1. 应用程序级资源 - 整个程序都能用 -->
+<Application x:Class="WpfApp.App"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    <Application.Resources>
+        <!-- 定义了一个名为 AppPrimaryColor 的蓝色画刷，全局可用 -->
+        <SolidColorBrush x:Key="AppPrimaryColor" Color="#FF2196F3"/>
+
+        <!-- 定义了一个针对 Button 的样式，全局可用 -->
+        <Style x:Key="AppButtonStyle" TargetType="Button">
+            <Setter Property="FontFamily" Value="Microsoft YaHei"/>
+            <Setter Property="FontSize" Value="14"/>
+        </Style>
+    </Application.Resources>
+</Application>
+
+<!-- 2. 窗口级资源 - 这个窗口里的控件都能用 -->
+<Window x:Class="WpfApp.MainWindow"
+            xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+            xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+            Title="设备监控系统" Height="450" Width="800">
+
+    <Window.Resources>
+        <!-- 窗口级资源定义在这里 -->
+        <SolidColorBrush x:Key="windowBackground" Color="#FFF5F5F5"/>
+        <Style x:Key="DataGridStyle" TargetType="DataGrid">
+            <Setter Property="Background" Value="White"/>
+            <Setter Property="BorderBrush" Value="#FFCCCCCC"/>
+        </Style>
+    </Window.Resources>
+
+    <!-- Grid 开始 -->
+    <!-- 引用了上面定义的 windowBackground 画刷作为背景 -->
+    <Grid Background="{StaticResource windowBackground}">
+
+        <!-- 3. 控件级资源 - 只有这个 Grid 和它的子控件能用 -->
+        <Grid.Resources>
+            <!-- 定义了一个针对 TextBlock 的样式，仅在 Grid 内部生效 -->
+            <Style TargetType="TextBlock">
+                <Setter Property="FontSize" Value="12"/>
+                <Setter Property="Foreground" Value="#FF333333"/>
+            </Style>
+        </Grid.Resources>
+
+        <!-- 下面是为了演示效果补充的内容 -->
+        <StackPanel Margin="20">
+            <!-- 这里的 TextBlock 会自动应用上面的控件级样式 (字体大小12, 深灰色) -->
+            <TextBlock Text="这是自动应用样式的文本块" Margin="0,0,0,10"/>
+
+            <!-- 这里显式引用了窗口级的 DataGridStyle -->
+            <DataGrid Style="{StaticResource DataGridStyle}" Height="150">
+                <DataGrid.Columns>
+                    <DataGridTextColumn Header="设备名称" Width="*"/>
+                    <DataGridTextColumn Header="状态" Width="*"/>
+                </DataGrid.Columns>
+            </DataGrid>
+        </StackPanel>
+
+    </Grid>
+</Window>
+```
+
+
+### 十四、控件库
+
+
+WPF默认使用的是微软原生的控件库,如果觉得这些控件都太丑了,可以试试引入别人的控件库.控件库本质上是一个封装了可复用用户界面组件（如按钮、文本框、图表等）的代码集合，它允许开发者在多个项目中共享和重用这些组件，从而提高开发效率并保持界面风格的一致性。引用别人的控件库通常有两种主流方式：通过 NuGet 包管理器安装，或手动添加项目/程序集引用。<br>
+
+使用步骤:
+
+- 下载对应的Nuget包
+- 在App.xaml中引入资源
+- 在MainWindow.xaml中添加命名空间
+- 检验测试
+
+
+市面上常用的开源控件库包括MaterialDesignThemes控件库和HandyControls控件库.<br>
+
+github主页如下: <br>
+https://github.com/MaterialDesignInXAML/MaterialDesignInXamlToolkit<br>
+
+引入包后在MaterialDesignDemo界面下可以看到完整的图标指南了.<br><br>
+
+HandyControl则是面向国内的控件库.<br>
+
+github主页如下: <br>
+
+https://github.com/HandyOrg/HandyControl
+
+
+中文文档地址: <br>
+https://handyorg.github.io/handycontrol/
+
+
+
+
+### 十五、WPF多线程
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
