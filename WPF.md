@@ -805,12 +805,12 @@ private void MyLoginControl_LoginClick(object sender, RoutedEventArgs e)
 
 
 
-### 六、布局和基础控件
+### 六、布局
 
 
 WPF的布局控件，本质上是用于管理子元素大小、位置和排列方式的容器类控件。它们不直接显示内容，而是决定内部子控件如何“摆放”和“自适应”，是实现响应式、动态界面的核心基础.
 
-#### 1 stackPanel布局
+#### 1、stackPanel布局
 
 这个布局类似于叠积木,可以设置为垂直排列和水平排列
 
@@ -832,7 +832,7 @@ WPF的布局控件，本质上是用于管理子元素大小、位置和排列�
 <img width="1007" height="762" alt="image" src="https://github.com/user-attachments/assets/5a2a1963-389f-4114-a2d7-0caa4e455587" />
 
 
-#### 2 Grid表格布局
+#### 2、Grid表格布局
 
 这个布局类似于Excel表格,可以自定义行和列
 
@@ -882,7 +882,7 @@ WPF的布局控件，本质上是用于管理子元素大小、位置和排列�
 <img width="874" height="495" alt="image" src="https://github.com/user-attachments/assets/87e258b5-f072-4c06-bff3-e57e65278e25" />
 
 
-#### 3 DockPanel停靠布局
+#### 3、DockPanel停靠布局
 
 停靠布局就是将某个区域贴着某个方向,然后一个大区域自动填充剩余部分
 
@@ -921,7 +921,7 @@ WPF的布局控件，本质上是用于管理子元素大小、位置和排列�
 <img width="879" height="506" alt="image" src="https://github.com/user-attachments/assets/3b3cbbdb-85c4-492c-9c56-2e5eec6c62dc" />
 
 
-#### 4 WarpPanel智能换行布局
+#### 4、WarpPanel智能换行布局
 
 效果和名字一样,从左往右,第一行满了就自动换行,像word文档一样
 
@@ -946,7 +946,7 @@ WPF的布局控件，本质上是用于管理子元素大小、位置和排列�
 
 
 
-#### 5 Canvas绝对定位布局
+#### 5、Canvas绝对定位布局
 
 
 这个布局里的每一个空间都需要输入距离上下左右的相对距离.
@@ -965,6 +965,273 @@ WPF的布局控件，本质上是用于管理子元素大小、位置和排列�
 
 
 <img width="893" height="479" alt="image" src="https://github.com/user-attachments/assets/6deb2b62-bda9-4ab8-bcd9-c23c17ed4923" />
+
+
+
+
+
+### 七、基础控件
+
+#### 1、Button按钮控件
+
+```xml
+<StackPanel>
+    <!--基本按钮包括大小和边缘间隔-->
+    <Button Content="基本按钮" Height="30" Margin="5"/>
+    <!--带样式的按钮可以多加背景色、字体颜色、字体粗细度-->
+    <Button Content="带样式的按钮" Background="Red" Foreground="Wheat" 
+            FontWeight="Bold" Height="30" Margin="5"/>
+    <!--带图标的按钮可以插入图标-->
+    <Button Height="40" Margin="5">
+        <StackPanel Orientation="Horizontal">
+            <Image Source="play.png" Width="20" Height="20"/>
+            <TextBlock Text="带图标的按钮" Margin="10,0,0,0"/>
+        </StackPanel>
+    </Button>
+    <!--绑定点击事件的按钮-->
+    <Button Content="绑定事件" Click="点击事件方法名" Margin="5"/>
+</StackPanel>
+```
+
+
+<img width="846" height="484" alt="image" src="https://github.com/user-attachments/assets/6d7dc1c3-9dad-45fa-b161-304c93cf97d3" />
+
+
+
+#### 2、TextBox和TextBlock文本显示和输入
+
+
+```xml
+<StackPanel Margin="10">
+    <!--TextBlock用于显示文本，用户不能编辑-->
+    <TextBlock Text="设备状态监控" FontSize="16" FontWeight="Bold"/>
+    <TextBlock Text="当前状态：运行中" Foreground="Green" Margin="0,5,0,5"/>
+    
+    <!--TextBox用户可以编辑的文本框-->
+    <TextBlock Text="IP地址" Margin="0,10,0,5"/>
+    <TextBox x:Name="txtIpaddress" Text="192.168.0.0" Height="25"/>
+
+    <TextBlock Text="端口号" Margin="0,10,0,5"/>
+    <TextBox x:Name="txtPort" Text="503" Height="25"/>
+    
+    <!--多行文本框-->
+    <TextBlock Text="日志信息" Margin="0,10,0,5"/>
+    <TextBlock x:Name="txtLog" Height="80" TextWrapping="Wrap"
+              VerticalAlignment="Center"/>
+</StackPanel>
+```
+
+<img width="826" height="473" alt="image" src="https://github.com/user-attachments/assets/8b643a5d-89e0-4745-bf69-d04cabb9f087" />
+
+
+
+#### 3 下拉选择框ComboBox
+
+```xml
+<StackPanel Margin="10">
+    <TextBlock Text="选择设备" FontWeight="Bold"/>
+    <ComboBox x:Name="cmbDevice" Height="25" Margin="0,5,0,10"
+              SelectionChanged="cmbDevice_SelectionChanged">
+        <ComboBoxItem Content="设备1"/>
+        <ComboBoxItem Content="设备2"/>
+        <ComboBoxItem Content="设备3"/>
+        <ComboBoxItem Content="设备4"/>
+    </ComboBox>
+</StackPanel>
+```
+
+<img width="779" height="312" alt="image" src="https://github.com/user-attachments/assets/351c0e1f-431b-4bc9-826a-380e00516547" />
+
+
+
+#### 4 CheckBox和RadioButton选择控件
+
+```xml
+<StackPanel Margin="10">
+    <TextBlock Text="设备配置" FontSize="14" FontWeight="Bold" Margin="0,0,0,10"/>
+
+    <!-- CheckBox: 多选框，可以同时选多个 -->
+    <TextBlock Text="启用功能：" Margin="0,0,0,5"/>
+    <CheckBox Content="自动启动" x:Name="chkAutoStart" Margin="5"/>
+    <CheckBox Content="报警提示" x:Name="chkAlarm" Margin="5" IsChecked="True"/>
+    <CheckBox Content="数据记录" x:Name="chkDataLog" Margin="5"/>
+
+    <!-- RadioButton: 单选框，只能选一个 -->
+    <TextBlock Text="运行模式：" Margin="0,15,0,5"/>
+    <RadioButton Content="手动模式" x:Name="rdoManual" GroupName="Mode" Margin="5" IsChecked="True"/>
+    <RadioButton Content="半自动模式" x:Name="rdoSemiAuto" GroupName="Mode" Margin="5"/>
+    <RadioButton Content="全自动模式" x:Name="rdoFullAuto" GroupName="Mode" Margin="5"/>
+
+    <Button Content="保存配置" Click="SaveConfig_Click" Margin="0,20,0,0" Height="30"/>
+</StackPanel>
+```
+
+
+<img width="822" height="470" alt="image" src="https://github.com/user-attachments/assets/3c9d1a01-9a98-42f8-bf10-f184e51d9dde" />
+
+
+#### 5 进度条ProgressBar
+
+```xml
+<StackPanel Margin="20" VerticalAlignment="Center">
+
+    <TextBlock Text="下载进度：" FontSize="16" Margin="0,0,0,5"/>
+
+    <!-- Maximum: 总进度 (例如 100%) -->
+    <!-- Value: 当前进度 (例如 45%) -->
+    <!-- Height: 设置高度让进度条更明显 -->
+    <ProgressBar x:Name="myProgressBar"
+             Minimum="0"
+             Maximum="100"
+             Value="45"
+             Height="25"
+             Foreground="#2196F3" />
+
+    <!-- IsIndeterminate="True": 当不知道具体要多久完成时，进度条会显示循环滚动动画 -->
+    <TextBlock Text="正在连接服务器..." Margin="0,20,0,5"/>
+    <ProgressBar IsIndeterminate="True"
+             Height="10"
+             Margin="0,0,0,20"/>
+
+    <!-- 带文本显示的进度条 (组合控件) -->
+    <Grid>
+        <!-- 底层放一个进度条 -->
+        <ProgressBar Minimum="0" Maximum="100" Value="75" Height="30" />
+        <!-- 上层放一个文本块，居中显示文字 -->
+        <TextBlock Text="75%"
+               HorizontalAlignment="Center"
+               VerticalAlignment="Center"
+               FontWeight="Bold"
+               Foreground="White"/>
+    </Grid>
+
+</StackPanel>
+```
+
+
+
+<img width="840" height="472" alt="image" src="https://github.com/user-attachments/assets/fbcbac70-b24e-4ccc-91de-c30d92141898" />
+
+
+
+### 八 Style样式
+
+
+Style相当于一个属性设置的集合,设置好一个统一的属性后,可以运用到多个控件上.
+
+#### 1 定义基本样式
+
+```xml
+<Window.Resources>
+    <!-- 定义一个按钮样式 -->
+    <Style x:Key="MyButtonStyle" TargetType="Button">
+        <Setter Property="Background" Value="LightBlue"/>
+        <Setter Property="Foreground" Value="DarkBlue"/>
+        <Setter Property="FontSize" Value="14"/>
+        <Setter Property="FontWeight" Value="Bold"/>
+        <Setter Property="Width" Value="120"/>
+        <Setter Property="Height" Value="35"/>
+        <Setter Property="Margin" Value="5"/>
+    </Style>
+</Window.Resources>
+
+<StackPanel Margin="20">
+    <!-- 使用样式 -->
+    <Button Content="按钮1" Style="{StaticResource MyButtonStyle}"/>
+    <Button Content="按钮2" Style="{StaticResource MyButtonStyle}"/>
+    <Button Content="按钮3" Style="{StaticResource MyButtonStyle}"/>
+</StackPanel>
+```
+
+
+#### 2 样式的继承
+
+继承就是在原有的样式中根据实际不同的情况新增样式.用BasedOn关键字来继承(类似于C#中的:)
+
+```xml
+<Window.Resources>
+    <!--基础按钮样式-->
+    <Style x:Key="BaseButtonStyle" TargetType="Button">
+        <Setter Property="FontSize" Value="14"/>
+        <Setter Property="FontWeight" Value="Bold"/>
+        <Setter Property="Width" Value="120"/>
+        <Setter Property="Height" Value="35"/>
+        <Setter Property="Margin" Value="5"/>
+    </Style>
+
+    <!--成功按钮样式，继承基础样式-->
+    <Style x:Key="SuccessButtonStyle" BasedOn="{StaticResource BaseButtonStyle}" TargetType="Button">
+        <Setter Property="Background" Value="LightGreen"/>
+        <Setter Property="Foreground" Value="DarkGreen"/>
+        <Setter Property="BorderThickness" Value="2"/>
+        <Setter Property="BorderBrush" Value="DarkGreen"/>
+    </Style>
+
+    <!--警告按钮样式，继承基础样式-->
+    <Style x:Key="WarningButtonStyle" BasedOn="{StaticResource BaseButtonStyle}" TargetType="Button">
+        <Setter Property="Background" Value="LightYellow"/>
+        <Setter Property="Foreground" Value="DarkOrange"/>
+        <Setter Property="BorderThickness" Value="2"/>
+        <Setter Property="BorderBrush" Value="DarkOrange"/>
+    </Style>
+
+    <!--危险按钮样式，继承基础样式-->
+    <Style x:Key="DangerButtonStyle" BasedOn="{StaticResource BaseButtonStyle}" TargetType="Button">
+        <Setter Property="Background" Value="LightCoral"/>
+        <Setter Property="Foreground" Value="DarkRed"/>
+        <Setter Property="BorderThickness" Value="2"/>
+        <Setter Property="BorderBrush" Value="DarkRed"/>
+    </Style>
+</Window.Resources>
+```
+
+#### 3 隐式样式
+
+这种样式会自动应用到指定类型的所有控件上，无需手动设置 Style 属性.
+
+
+```xml
+<Window.Resources>
+    <!-- 隐式样式：所有按钮都会应用这个样式 -->
+    <Style TargetType="Button">
+        <Setter Property="Background" Value="LightBlue"/>
+        <Setter Property="Foreground" Value="DarkBlue"/>
+        <Setter Property="FontSize" Value="14"/>
+        <Setter Property="Margin" Value="5"/>
+    </Style>
+</Window.Resources>
+
+<StackPanel Margin="20">
+    <!-- 这些按钮会自动应用上面的隐式样式 -->
+    <Button Content="按钮1"/>
+    <Button Content="按钮2"/>
+    <Button Content="按钮3"/>
+
+    <!-- 如果某个按钮不想用隐式样式，可以显式设置 Style 为 {x:Null} -->
+    <Button Content="特殊按钮" Style="{x:Null}" Background="Red" Foreground="White"/>
+</StackPanel>
+```
+
+
+### 九 Template模板
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
