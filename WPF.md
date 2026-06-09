@@ -805,21 +805,166 @@ private void MyLoginControl_LoginClick(object sender, RoutedEventArgs e)
 
 
 
-### 六
+### 六、布局和基础控件
+
+
+WPF的布局控件，本质上是用于管理子元素大小、位置和排列方式的容器类控件。它们不直接显示内容，而是决定内部子控件如何“摆放”和“自适应”，是实现响应式、动态界面的核心基础.
+
+#### 1 stackPanel布局
+
+这个布局类似于叠积木,可以设置为垂直排列和水平排列
+
+```xml
+<!--就像叠积木一样，可以设置为垂直排列和水平排列-->
+<StackPanel Orientation="Vertical" Background="LightBlue">   
+    <Button Content="button1" Height="30" Margin="10"/>
+    <Button Content="button2" Height="30" Margin="10"/>
+    <Button Content="button3" Height="30" Margin="10"/>
+    <TextBox Text="文本框" Margin="10"/>
+    <CheckBox Content="选择框" Margin="10"/>
+</StackPanel>
+```
+
+<img width="900" height="507" alt="image" src="https://github.com/user-attachments/assets/e0f8206f-df9b-450f-86c6-5211cd0f1afa" />
 
 
 
+<img width="1007" height="762" alt="image" src="https://github.com/user-attachments/assets/5a2a1963-389f-4114-a2d7-0caa4e455587" />
+
+
+#### 2 Grid表格布局
+
+这个布局类似于Excel表格,可以自定义行和列
+
+```xml
+<Grid>
+    <Grid.RowDefinitions>   <!--行定义-->
+        <RowDefinition Height="Auto" /> <!--第一行：自动高度-->
+        <RowDefinition Height="*"/>     <!--第二行占用剩余所有空间-->
+        <RowDefinition Height="50"/>    <!--第三行固定高度50-->
+    </Grid.RowDefinitions>
+
+    <Grid.ColumnDefinitions> <!--列定义-->
+        <ColumnDefinition Width="100"/>  <!--第一列宽度100-->
+        <ColumnDefinition Width="*"/>    <!--第二列占剩余空间（剩余1/3）-->
+        <ColumnDefinition Width="2*"/>   <!--第三列占第二列的两倍空间（剩余2/3）-->
+    </Grid.ColumnDefinitions>
+
+    <!--标题栏-->
+    <!--第一行第一列，列跨度为3-->
+    <TextBlock Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="3" 
+               Text="设备监控系统" Background="LightBlue"
+               FontSize="16" FontWeight="Bold"
+               HorizontalAlignment="Center" Padding="10"/>
+    
+    <!--内嵌stackPanel做侧边栏-->
+    <!--第2行第一列-->
+    <StackPanel Grid.Row="1" Grid.Column="0" Background="LightGray">
+        <Button Content="设备1" Margin="5"/>
+        <Button Content="设备2" Margin="5"/>
+        <Button Content="设备3" Margin="5"/>
+    </StackPanel>
+    
+    <!--主要内容区-->
+    <!--第二行第二列，列跨度为2-->
+    <TextBox Grid.Row="1" Grid.Column="1" Grid.ColumnSpan="2"
+             Text="红色区域这里是主要区域"
+             Background="Red" Margin="5"/>
+    
+    <!--状态栏-->
+    <!--第三行第1列，列跨度为3-->
+    <TextBox Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="3"
+             Text="黄色区域这里是状态栏"
+             Background="Yellow" />
+</Grid>
+```
+
+<img width="874" height="495" alt="image" src="https://github.com/user-attachments/assets/87e258b5-f072-4c06-bff3-e57e65278e25" />
+
+
+#### 3 DockPanel停靠布局
+
+停靠布局就是将某个区域贴着某个方向,然后一个大区域自动填充剩余部分
+
+```xml
+<DockPanel LastChildFill="True">
+    <!--停靠顶部的菜单-->
+    <Menu DockPanel.Dock="Top" Background="LightBlue">
+        <MenuItem Header="文件">   <!--文件按钮里面折叠了新建和打开-->
+            <MenuItem Header="新建"/>
+            <MenuItem Header="打开"/>
+        </MenuItem>
+        <MenuItem Header="编辑"/>
+    </Menu>
+    
+    <!--停靠底部的菜单-->
+    <StatusBar DockPanel.Dock="Bottom" Background="LightGreen">
+        <StatusBarItem>
+            <TextBox Text="状态：就绪"/>
+        </StatusBarItem>
+    </StatusBar>
+    
+    <!--停靠左侧的工具栏-->
+    <StackPanel DockPanel.Dock="Left" Width="80" Background="LightYellow">
+        <Button Content="工具1" Margin="5"/>
+        <Button Content="工具2" Margin="5"/>
+        <Button Content="工具3" Margin="5"/>
+    </StackPanel>
+    
+    <!--主要内容区就自动填充剩余空间了-->
+    <TextBox Text="主要区域"
+             Background="Blue" TextWrapping="Wrap"/>
+
+</DockPanel>
+```
+
+<img width="879" height="506" alt="image" src="https://github.com/user-attachments/assets/3b3cbbdb-85c4-492c-9c56-2e5eec6c62dc" />
+
+
+#### 4 WarpPanel智能换行布局
+
+效果和名字一样,从左往右,第一行满了就自动换行,像word文档一样
+
+```xml
+    <Grid>
+        <WrapPanel Orientation="Horizontal">
+            <Button Content="按钮1" Width="80" Height="30" Margin="5"/>
+            <Button Content="按钮2" Width="80" Height="30" Margin="5"/>
+            <Button Content="按钮3" Width="80" Height="30" Margin="5"/>
+            <Button Content="按钮4" Width="80" Height="30" Margin="5"/>
+            <Button Content="按钮5" Width="80" Height="30" Margin="5"/>
+            <Button Content="按钮6" Width="80" Height="30" Margin="5"/>
+            <Button Content="按钮7" Width="80" Height="30" Margin="5"/>
+            <Button Content="按钮8" Width="80" Height="30" Margin="5"/>
+            <Button Content="按钮9" Width="80" Height="30" Margin="5"/>
+        </WrapPanel>
+    </Grid>
+```
+
+
+<img width="928" height="511" alt="image" src="https://github.com/user-attachments/assets/d5d36423-1a2b-4ad9-94d2-d75782b1347c" />
 
 
 
+#### 5 Canvas绝对定位布局
 
 
+这个布局里的每一个空间都需要输入距离上下左右的相对距离.
+
+```xml
+<Canvas Background="AliceBlue">
+    <!--比如按钮1举例左侧50远，距离顶部30远，距离宽度80远，距离高度30远-->
+    <Button Content="按钮1" Canvas.Left="50" Canvas.Top="30" 
+            Width="80" Height="30"/>
+    <Button Content="按钮2" Canvas.Left="150" Canvas.Top="80" 
+    Width="80" Height="30"/>
+    <TextBox Text="文本框" Canvas.Left="80" Canvas.Top="150"
+             Width="120" Height="25"/>
+</Canvas>
+```
 
 
-
-
-
-
+<img width="893" height="479" alt="image" src="https://github.com/user-attachments/assets/6deb2b62-bda9-4ab8-bcd9-c23c17ed4923" />
 
 
 
