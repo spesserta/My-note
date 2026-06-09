@@ -666,6 +666,154 @@ namespace Module1.ViewModels
 <img width="930" height="652" alt="image" src="https://github.com/user-attachments/assets/5c8302bd-8661-4dad-90c7-f0c19b153b30" />
 
 
+同样以登录界面为例,先创建自定义控件类 (UserLogin.cs),这个类必须继承control,只定义数据（依赖属性）和行为（路由事件），不写任何UI布局代码.
+
+```c#
+using System.Windows;
+using System.Windows.Controls;
+using System.Windows.Media;
+
+public class UserLogin : Control
+{
+    //静态构造函数：重写默认样式键，让控件去Generic.xaml中寻找外观
+    static UserLogin()
+    {
+        DefaultStyleKeyProperty.OverrideMetadata(typeof(UserLogin), 
+            new FrameworkPropertyMetadata(typeof(UserLogin)));
+    }
+
+    //定义依赖属性：账号
+    public static readonly DependencyProperty UsernameProperty =
+        DependencyProperty.Register("Username", typeof(string), typeof(UserLogin), new PropertyMetadata(string.Empty));
+
+    public string Username
+    {
+        get => (string)GetValue(UsernameProperty);
+        set => SetValue(UsernameProperty, value);
+    }
+
+    //定义依赖属性：密码
+    public static readonly DependencyProperty PasswordProperty =
+        DependencyProperty.Register("Password", typeof(string), typeof(UserLogin), new PropertyMetadata(string.Empty));
+
+    public string Password
+    {
+        get => (string)GetValue(PasswordProperty);
+        set => SetValue(PasswordProperty, value);
+    }
+
+    //定义事件：当点击登录按钮时，向外部抛出事件
+    public static readonly RoutedEvent LoginClickEvent =
+        EventManager.RegisterRoutedEvent("LoginClick", RoutingStrategy.Bubble, typeof(RoutedEventHandler), typeof(UserLogin));
+
+    public event RoutedEventHandler LoginClick
+    {
+        add => AddHandler(LoginClickEvent, value);
+        remove => RemoveHandler(LoginClickEvent, value);
+    }
+
+    //模板应用：当控件模板被加载时，找到内部的按钮并绑定点击事件
+    public override void OnApplyTemplate()
+    {
+        base.OnApplyTemplate();
+        if (GetTemplateChild("PART_LoginButton") is Button loginBtn)
+        {
+            loginBtn.Click -= LoginBtn_Click; // 避免重复绑定
+            loginBtn.Click += LoginBtn_Click;
+        }
+    }
+
+    private void LoginBtn_Click(object sender, RoutedEventArgs e)
+    {
+        // 触发事件，将控制权交给外部
+        RaiseEvent(new RoutedEventArgs(LoginClickEvent, this));
+    }
+}
+```
+
+自定义控件的 UI 必须写在Generic.xaml 文件中。在这里通过 ControlTemplate 将 TextBox、PasswordBox 和 Button 组装起来，并使用 TemplateBinding 与后台的依赖属性进行双向绑定。
+
+
+```xml
+<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:local="clr-namespace:YourNamespace">
+
+    <Style TargetType="{x:Type local:UserLogin}">
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="{x:Type local:UserLogin}">
+                    <Border BorderBrush="LightGray" BorderThickness="1" CornerRadius="5" Padding="20">
+                        <StackPanel Width="300">
+                            <TextBlock Text="自定义控件登录" FontSize="20" FontWeight="Bold" Margin="0,0,0,15" HorizontalAlignment="Center"/>
+                            
+                            <!-- 账号输入：绑定到自定义控件的 Username 属性 -->
+                            <TextBlock Text="账号:" Margin="0,0,0,5"/>
+                            <TextBox Text="{Binding Username, RelativeSource={RelativeSource TemplatedParent}, UpdateSourceTrigger=PropertyChanged}" Height="30" Padding="5"/>
+                            
+                            <!-- 密码输入：绑定到自定义控件的 Password 属性 -->
+                            <TextBlock Text="密码:" Margin="0,10,0,5"/>
+                            <PasswordBox x:Name="PART_PasswordBox" Height="30" Padding="5"/>
+                            
+                            <!-- 登录按钮：通过 PART_ 命名约定在后台获取 -->
+                            <Button x:Name="PART_LoginButton" Content="登 录" 
+                                    Height="35" Margin="0,20,0,0" Background="#0078D7" Foreground="White"/>
+                        </StackPanel>
+                    </Border>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+</ResourceDictionary>
+```
+
+最后在主窗口内使用这个自定义控件就可以了
+
+```xml
+<Window x:Class="YourNamespace.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:local="clr-namespace:YourNamespace">
+
+    <Grid>
+        <!-- 像使用原生控件一样使用自定义登录控件 -->
+        <local:UserLogin x:Name="MyLoginControl" 
+                         HorizontalAlignment="Center" 
+                         VerticalAlignment="Center"
+                         LoginClick="MyLoginControl_LoginClick"/>
+    </Grid>
+</Window>
+```
+```c#
+// MainWindow.xaml.cs
+private void MyLoginControl_LoginClick(object sender, RoutedEventArgs e)
+{
+    // 直接从自定义控件中读取绑定的属性
+    string username = MyLoginControl.Username;
+    string password = MyLoginControl.Password;
+
+    if (username == "admin" && password == "123456")
+    {
+        MessageBox.Show("登录成功！");
+    }
+    else
+    {
+        MessageBox.Show("账号或密码错误！");
+    }
+}
+```
+
+
+
+### 六
+
+
+
+
+
+
+
+
 
 
 
