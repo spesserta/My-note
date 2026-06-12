@@ -1,4 +1,4 @@
-## 七、网口通信（以太网）
+## 一、网口通信（以太网）
 
 首先上网安装一个网络调试助手netassist，打开界面如下：
 
@@ -441,7 +441,7 @@ namespace UdpBroadcastReceive
 - 收发端口必须完全一样
 
 
-## 八、TcpClient
+## 二、TcpClient
 
 TcpClient是System.Net.Sockets命名空间下的一个类，封装了底层的Socket操作，简化了TCP协议的通信流程，同时也支持同步和异步的操作，试用于客户端和服务器的开发
 
