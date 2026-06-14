@@ -1,23 +1,25 @@
-# 一、核心前置准备（命名空间）
+# 一、命名空间
 
 ```c#
 // 多线程的命名空间
-using System.Threading;       // 基础线程操作、锁、取消令牌等
-using System.Threading.Tasks; // 核心：Task/async/await（上位机90%场景使用）
+using System.Threading;       // 基础线程操作
+using System.Threading.Tasks; // 核心
 ```
->说明：传统Thread类（仅了解，旧项目兼容用），引入System.Threading即可，日常开发优先用Task。
+>说明：传统Thread类不经常用，引入System.Threading即可，日常开发优先用Task。
 
 
-# 二、上位机必掌握的多线程核心内容
+# 二、多线程核心内容
 
-## 1、1. Task / async await
+## 1、1. Task/async await
 
 >上位机开发最常用的多线程方式，替代传统Thread，简洁易维护，避免界面卡死。
->必会操作：
+
+操作：
 - 用Task.Run()开启后台线程（执行耗时操作，如通信、数据采集）
 - 用async/await编写异步方法（方法前加async，耗时操作前加await）
 - 任务等待：Wait()（同步等待）、WhenAll()（等待所有任务完成）、WhenAny()（等待任一任务完成）
 - 禁忌：不要在async方法中同步死等（如Task.Wait()），会导致界面卡死
+
 >上位机用途：
 - 串口、网口、Modbus通信（不阻塞UI，保证界面流畅）
 - PLC、传感器数据采集（后台循环采集，不影响界面操作）
@@ -101,7 +103,7 @@ private void UpdateUIFromThreadWPF(string data)
 >场景：多线程同时读写同一个变量（如采集数据缓存、全局配置）、同时操作同一个资源（如日志文件、串口），会出现数据错乱、程序崩溃。
 
 >必会解决方案：
-### （1）lock关键字（最常用，简单易上手）
+### （1）lock关键字（常用）
 
 ```c#
 // 定义一个锁对象（全局唯一，不能是值类型）
@@ -245,13 +247,6 @@ private void InitUITimer()
 }
 ```
 
-# 三、无需深入学习的内容（了解概念即可）
->上位机开发中极少用到，无需死磕，避免浪费时间：
-- 原生Thread类（旧技术，Task已完全替代，知道即可）
-- ThreadPool（线程池，Task内部已封装，无需手动管理）
-- TaskCompletionSource（高级异步，上位机场景几乎用不到）
-- 并行编程：Parallel.For、PLINQ（工控场景多为单任务后台执行，极少用到并行）
-- 高级同步机制：SemaphoreSlim、Barrier、异步锁
 
 
 
