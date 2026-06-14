@@ -1,4 +1,4 @@
-# 一、命名空间
+# 一、多线程基本概念
 
 ```c#
 // 多线程的命名空间
@@ -7,113 +7,289 @@ using System.Threading.Tasks; // 核心
 ```
 >说明：传统Thread类不经常用，引入System.Threading即可，日常开发优先用Task。
 
-
-# 二、多线程核心内容
-
-## 1、1. Task/async await
-
->上位机开发最常用的多线程方式，替代传统Thread，简洁易维护，避免界面卡死。
-
-操作：
-- 用Task.Run()开启后台线程（执行耗时操作，如通信、数据采集）
-- 用async/await编写异步方法（方法前加async，耗时操作前加await）
-- 任务等待：Wait()（同步等待）、WhenAll()（等待所有任务完成）、WhenAny()（等待任一任务完成）
-- 禁忌：不要在async方法中同步死等（如Task.Wait()），会导致界面卡死
-
->上位机用途：
+>多线程用途：
 - 串口、网口、Modbus通信（不阻塞UI，保证界面流畅）
 - PLC、传感器数据采集（后台循环采集，不影响界面操作）
 - 日志保存、数据库读写（耗时操作后台执行）
 
 
-```c#
-// 异步采集数据方法（async/await）
-private async void btnStartCollect_Click(object sender, EventArgs e)
-{
-    // 开启后台线程执行采集，不卡界面
-    await Task.Run(() => 
-    {
-        // 模拟PLC数据采集（循环采集）
-        for (int i = 0; i < 10; i++)
-        {
-            Thread.Sleep(1000); // 模拟采集耗时
-            var data = $"采集到数据：{i}";
-            // 后续需跨线程更新UI（见下文2）
-        }
-    });
-    MessageBox.Show("采集完成");
-}
-```
+# 二、多线程核心内容
 
-## 2. 跨线程访问UI控件
->核心原则：子线程（后台采集、通信线程）不能直接修改UI控件（如TextBox、Label），会报线程安全异常。<br>
->两种场景实现（对应上位机常用框架）：
-### （1）WinForm
+## 1、Task
+
+Task表示一个正在执行的线程，可以等待它完成、取它的返回值，或在它之后做别的事。
 
 ```c#
-// 方法1：Control.Invoke（同步更新UI）
-private void UpdateUIFromThread(string data)
+using System;
+using System.Threading.Tasks;
+class Program
 {
-    // 判断是否跨线程，是则调用Invoke
-    if (txtData.InvokeRequired)
+    static void Main()
     {
-        txtData.Invoke(new Action(() => 
+        // Task.Run(lambda表达式): 开启一个后台线程
+        Task t = Task.Run(() =>
         {
-            txtData.Text += data + Environment.NewLine;
-        }));
-    }
-    else
-    {
-        txtData.Text += data + Environment.NewLine;
-    }
-}
+            for (int i = 0; i < 5; i++)
+            {
+                Console.WriteLine($"后台工作中... {i}");
+                Task.Delay(500).Wait(); // 模拟耗时
+            }
+        });
 
-// 方法2：Control.BeginInvoke（异步更新UI，不阻塞子线程，推荐）
-private void UpdateUIFromThreadAsync(string data)
-{
-    if (txtData.InvokeRequired)
-    {
-        txtData.BeginInvoke(new Action(() => 
-        {
-            txtData.Text += data + Environment.NewLine;
-        }));
-    }
-    else
-    {
-        txtData.Text += data + Environment.NewLine;
+        Console.WriteLine("主线程继续干别的事...");
+        t.Wait(); // 等待后台任务完成
+        Console.WriteLine("任务结束");
     }
 }
 ```
 
-### （2）WPF
+- Task.Run(() => { ... }) — 把一个 Lambda 丢到线程池去跑
+- t.Wait() — 阻塞当前线程直到任务完成（实际上用await比较多）
+- Task的TResult泛型版：Task<int> 表示任务完成后会返回一个int
+
+
+## 2、异步async、await
+
+
+async标记方法为异步方法，await等待一个Task完成但不阻塞当前线程。
 
 ```c#
-// 用Dispatcher.Invoke/BeginInvoke
-private void UpdateUIFromThreadWPF(string data)
+using System;
+using System.Threading.Tasks;
+
+class Program
 {
-    // Dispatcher是WPF的UI线程调度器
-    Application.Current.Dispatcher.BeginInvoke(new Action(() => 
+    static async Task Main()
     {
-        txtData.Text += data + Environment.NewLine;
+        Console.WriteLine("开始做饭");
+
+        // 异步煮饭，CookRiceAsync()在后台运行不阻塞主进程
+        Task riceTask = CookRiceAsync();
+
+        //煮饭的同时主线程在切菜
+        Console.WriteLine("煮饭的同时切菜...");
+        await Task.Delay(1500);
+        Console.WriteLine("菜切好了");
+
+        // 等饭煮好
+        await riceTask;
+        Console.WriteLine("开饭！");
+    }
+
+    static async Task CookRiceAsync()
+    {
+        Console.WriteLine("开始煮饭");
+        await Task.Delay(2000); // 煮饭需要 2 秒，但不阻塞
+        Console.WriteLine("饭煮好了");
+    }
+}
+```
+
+注意：
+- async方法应返回Task或Task<T>，只有事件处理器（如按钮点击）可以返回 void
+- await只能在async方法里用
+- await后面跟Task对象
+- async void尽量别用，因为异常无法捕获，调试困难
+
+
+
+## 3、跨线程访问UI控件
+
+UI控件由UI主线程创建，Windows消息机制规定：只有创建控件的线程才能操作它。后台线程（Task、Thread、Timer 回调）直接修改控件会抛异常<br>
+
+#### winform中的跨线程访问
+
+Invoke同步调用：
+```c#
+//假设后台线程需要更新textBox1的文本值
+Task.Run(() =>
+{
+    int result = HeavyCalculation();
+
+    //同步等待 UI 更新完成
+    textBox1.Invoke(new Action(() =>
+    {
+        textBox1.Text = result.ToString();
     }));
+
+    // 到这里 UI 已更新
+});
+```
+
+BeginInvoke异步调用：
+``c#
+Task.Run(() =>
+{
+    int result = HeavyCalculation();
+
+    // 异步丢给 UI 线程，不阻塞
+    textBox1.BeginInvoke(new Action(() =>
+    {
+        textBox1.Text = result.ToString();
+    }));
+    // 不阻塞，继续执行
+});
+```
+
+带返回值的Invoke
+```c#
+// 在 UI 线程取一个值，返回到后台线程
+string text = (string)textBox1.Invoke(new Func<string>(() =>
+{
+    return textBox1.Text;
+}));
+```
+
+Demo
+```c#
+private void btnStart_Click(object sender, EventArgs e)
+{
+    Task.Run(async () =>
+    {
+        for (int i = 1; i <= 10; i++)
+        {
+            await Task.Delay(500);
+
+            // InvokeRequired 写法
+            if (txtStatus.InvokeRequired)
+            {
+                txtStatus.Invoke(new Action(() =>
+                {
+                    txtStatus.Text = $"采集进度: {i * 10}%";
+                }));
+            }
+            else
+            {
+                txtStatus.Text = $"采集进度: {i * 10}%";
+            }
+        }
+
+        txtStatus.Invoke(new Action(() =>
+        {
+            txtStatus.Text = "采集完成";
+        }));
+    });
 }
 ```
 
-## 3. 线程安全
->场景：多线程同时读写同一个变量（如采集数据缓存、全局配置）、同时操作同一个资源（如日志文件、串口），会出现数据错乱、程序崩溃。
 
->必会解决方案：
-### （1）lock关键字（常用）
+#### WPF中的跨线程访问
+
+WPF 中，每个UI线程有一个 Dispatcher 对象，通过它把操作封送到UI线程执行。<br>
+
+Dispatcher.Invoke同步调用：
+```c#
+// 后台线程
+Task.Run(() =>
+{
+    int result = HeavyCalculation();
+
+    // 等待 UI 线程执行完，才继续往下走
+    Application.Current.Dispatcher.Invoke(() =>
+    {
+        txtResult.Text = result.ToString();
+        progressBar.Value = 100;
+    });
+
+    // 到这里 UI 已经更新完了
+    Log("更新完成");
+});
+```
+Dispatcher.BeginInvoke异步调用：
+```c#
+// 后台线程
+Task.Run(() =>
+{
+    int result = HeavyCalculation();
+
+    // 丢给 UI 线程，自己不等，直接继续
+    Application.Current.Dispatcher.BeginInvoke(new Action(() =>
+    {
+        txtResult.Text = result.ToString();
+    }));
+
+    // 不等 UI 更新，直接执行下一行
+    // （可能 UI 还没更新）
+});
+```
+
+Dispatcher.InvokeAsync异步且可以await
+```c#
+// 后台线程里 await，等 UI 更新完再继续
+await Application.Current.Dispatcher.InvokeAsync(() =>
+{
+    txtResult.Text = "更新完成";
+});
+// 到这里 UI 确实已更新
+```
+
+
+常见写法：
+```c#
+// 方式 A：全局 Application Dispatcher
+Application.Current.Dispatcher.Invoke(() => { ... });
+
+// 方式 B：控件的 Dispatcher（更推荐，不用判空）
+txtMessage.Dispatcher.Invoke(() =>
+{
+    txtMessage.Text = "新消息";
+});
+
+// 方式 C：当前 UI 线程的 Dispatcher（在 Window/UserControl 里用）
+this.Dispatcher.Invoke(() => { ... });
+```
+
+
+Demo：
+```xml
+<Window x:Class="WpfDemo.MainWindow" ...>
+    <StackPanel>
+        <TextBlock x:Name="txtStatus" FontSize="20"/>
+        <Button Content="开始采集" Click="StartBtn_Click"/>
+    </StackPanel>
+</Window>
+```
 
 ```c#
-// 定义一个锁对象（全局唯一，不能是值类型）
+private void StartBtn_Click(object sender, RoutedEventArgs e)
+{
+    Task.Run(async () =>
+    {
+        for (int i = 1; i <= 10; i++)
+        {
+            //模拟采集数据
+            await Task.Delay(500);
+
+            //丢回UI线程更新
+            txtStatus.Dispatcher.Invoke(() =>
+            {
+                txtStatus.Text = $"采集进度: {i * 10}%";
+            });
+        }
+
+        txtStatus.Dispatcher.Invoke(() =>
+        {
+            txtStatus.Text = "采集完成";
+        });
+    });
+}
+```
+
+
+
+## 4、线程安全lock
+
+多线程同时读写同一个变量（如采集数据缓存、全局配置）、同时操作同一个资源（如日志文件、串口），会出现数据错乱、程序崩溃。
+
+```c#
+//定义一个锁对象（全局唯一，不能是值类型）
 private readonly object _lockObj = new object();
 private int _count = 0; // 共享变量
 
-// 多线程同时调用此方法，不会出现数据错乱
+//多线程同时调用此方法，不会出现数据错乱
 private void AddCount()
 {
-    lock (_lockObj) // 锁定代码块，同一时间只有一个线程执行
+    lock (_lockObj) //lock锁定代码块，同一时间只有一个线程执行
     {
         _count++;
         Console.WriteLine($"当前计数：{_count}");
@@ -122,40 +298,9 @@ private void AddCount()
 ```
 
 
-### （2）线程安全集合（缓存采集数据必备）
->无需手动加锁，框架自带线程安全，上位机最常用ConcurrentQueue（队列，先进先出，适合缓存采集数据）：
-
-```c#
-using System.Collections.Concurrent; // 需额外引入
-
-// 线程安全队列，用于缓存采集到的数据
-private ConcurrentQueue<string> _dataQueue = new ConcurrentQueue<string>();
-
-// 采集线程：入队
-private void CollectData()
-{
-    _dataQueue.Enqueue("采集到的数据"); // 线程安全，无需lock
-}
-
-// 处理线程：出队
-private void ProcessData()
-{
-    if (_dataQueue.TryDequeue(out string data))
-    {
-        // 处理数据
-        UpdateUIFromThread(data);
-    }
-}
-```
-
->相关概念：
-- 竞态条件：多线程同时读写共享资源，导致数据结果不确定（如两个线程同时给_count加1，可能只加1次）。
-- 死锁：两个线程互相等待对方释放锁，导致程序卡死（上位机开发中，避免嵌套lock即可基本规避）。
-
-
-## 4. 线程取消
+## 5、线程取消
 >场景：点击“停止采集”“断开连接”、关闭窗口时，安全退出后台线程（避免线程占用资源、程序无法正常关闭）。
->必会：CancellationToken（取消令牌）
+>CancellationToken（取消令牌）
 
 ```c#
 // 定义取消令牌源（全局，方便随时取消）
@@ -193,7 +338,7 @@ private void btnStopCollect_Click(object sender, EventArgs e)
 }
 ```
 
-## 5. 定时器（非严格线程，但依赖线程）
+## 6、定时器（非严格线程，但依赖线程）
 >用途：定时读取PLC、定时刷新界面曲线、定时保存日志、定时校验设备状态。
 >必学两种定时器：
 ### （1）System.Timers.Timer（后台定时器，适合非UI操作）
