@@ -1,448 +1,274 @@
-## 一、网口通信（以太网）
+### 一、基本概念
 
-首先上网安装一个网络调试助手netassist，打开界面如下：
+ModbusTCP是基于TCP/IP协议实现的，通信链路是依赖以太网通信。在ModbusTCP中主站是TCP客户端，从站是TCP服务器！
 
-<img width="822" height="707" alt="image" src="https://github.com/user-attachments/assets/32667224-cc21-4e0f-901d-67e14f8cbf53" />
-
-
-界面的功能是一目了然的，一般来说是C#代码作为客户端，这个软件作为服务端。<br>
-
-在C#中封装好了两种网口对象，一种是Socket还有一种是TCPClient，接下来介绍一下
-
-### 1、Socket网口对象
-
-Socket是网络通信的核心编程接口，支持TCP、UDP等协议，允许应用程序通过IP地址和端口和其他设备通信。
-
-##### 关键概念
-- 地址族（AddressFamily）：例如InterNetwork（IPV4）和InterNetworkV6（IPV6）
-- 套接字类型（SocketType）：例如Stream（TCP）、Dgram（UDP）
-- 协议类型（ProtocolType）：例如Tcp Udp
-- IPEndPoint：表示网路哟终端节点（IP地址+端口的格式）
+<img width="943" height="495" alt="image" src="https://github.com/user-attachments/assets/840f560a-6bed-4c0c-a3b6-13198811d597" />
 
 
-```c#
-using System.Xml.Serialization;
-using System.Net.Sockets;
+ModbusTCP的功能码和ModbusRTU是相同的，在此不多说。由于ModbusTCP是基于TCP实现的，TCP的数据链路层里面已经有差错校验了，因此无需校验码字段了，并且从站ID也更换成了MBAP报头（包含事务处理、协议、长度、单元）。
 
-namespace SocketTest
-{
-    internal class Program
-    {
-        static void Main(string[] args)
-        {
-            Console.WriteLine("Hello, World!");
+- 事务处理标识符：占用2字节，类似于报文分段后的序号，客户端产生新的事务符，然后服务器返回相同的事务符，以此来进行匹配
+- 协议标识符：占用2字节，固定为0，0表示Modbus协议
+- 长度标识符：占用2字节，表示长度之后的字节总数
+- 单元标识符：占用1字节，一般设置为FF或者00，相当于RTU的从站地址，一般用不上
 
-        }
-        static void SocketTest1()
-        {
-            //创建TCP协议Socket对象
-            Socket clientTCP = new Socket(  
-                AddressFamily.InterNetwork, //默认是IPV4，可以省略
-                SocketType.Stream,    //套接字类型是TCP
-                ProtocolType.Tcp      //协议类型TCP
-                );
-            //创建UDP协议Socket对象
-            Socket clientUDP = new Socket(AddressFamily.InterNetwork, SocketType.Dgram,ProtocolType.Udp);
+其他的数据部分和ModbusRTU是一样的。
 
-            //假设连接到的服务器IP地址是192.168.1.10，端口号是9090
-            //连接到服务器IP Port
-            clientTCP.Connect("192.168.1.10",9090); //完成TCP的三次握手
-        }
-    }
-}
-```
-
-##### Socket的工作流程
-
-<img width="973" height="368" alt="image" src="https://github.com/user-attachments/assets/f63f4d2a-8a4b-41f0-b897-92154599ea4f" />
-
-### 2、TCP服务器举例
-
-```c#
-static void StartServer()
-{
-    // 1. 创建服务端 Socket
-    // AddressFamily.InterNetwork：使用 IPv4 协议
-    // SocketType.Stream：使用面向连接的字节流（TCP）
-    // ProtocolType.Tcp：指定传输层协议为 TCP
-    Socket serverSocket = new Socket(
-        AddressFamily.InterNetwork,
-        SocketType.Stream,
-        ProtocolType.Tcp
-    );
+<img width="1769" height="1074" alt="image" src="https://github.com/user-attachments/assets/edca245e-1f97-48cc-bf6e-317ca15a977d" />
 
 
-    // 2. 服务器绑定到本地 IP 和端口
-    // IPAddress.Any：监听本机所有网卡的 IP（0.0.0.0）
-    // 8888：监听的端口号（1024~65535 之间，避开系统占用端口）
-    IPEndPoint localEndPoint = new IPEndPoint(IPAddress.Any, 8888);
-    serverSocket.Bind(localEndPoint); // 将 Socket 与本地地址、端口绑定
+
+### 二、执行过程
 
 
-    // 3. 开始监听客户端连接
-    // 参数 10：最大挂起连接队列长度（同时等待被处理的连接数上限）
-    serverSocket.Listen(10);
-    Console.WriteLine("服务器已启动，等待连接...");
+##### 1、假设要读取从站01的地址1、2、3这3个线圈的值
+
+生成的报文结构为：00 01(事务处理标识符) 00 00(协议标识符)00 06(字节长度) FF(单位标识符) 01(功能码01) 00 01(线圈起始地址) 00 03(线圈数量) <br>
+
+生成完毕后注意不是广播的形式发布了而是IP地址+端口号精确定位从站的地址
 
 
-    // 4. 接受客户端连接（阻塞方法）
-    // Accept() 会阻塞程序，直到有客户端发起连接
-    // 返回一个新的 Socket（clientSocket），专门用来和这个客户端通信
-    Socket clientSocket = serverSocket.Accept();
-    Console.WriteLine($"客户端已连接: {clientSocket.RemoteEndPoint}");
+<img width="1895" height="1063" alt="image" src="https://github.com/user-attachments/assets/fc6f1202-5875-40d6-8ef1-e0cbdaa17bc5" />
 
 
-    //  5. 接收客户端发送的数据
-    byte[] buffer = new byte[1024]; // 定义接收缓冲区，一次最多接收 1024 字节
-    // Receive() 会阻塞，直到收到数据
-    // 返回值 bytesRead 表示实际读到的字节数
-    int bytesRead = clientSocket.Receive(buffer);
-    // 将收到的字节数组按 UTF-8 编码转为字符串
-    string message = Encoding.UTF8.GetString(buffer, 0, bytesRead);
-    Console.WriteLine($"收到消息: {message}");
+从站收到请求后根据报文格式解析该请求，并且返回00 01(事务处理标识符) 00 00(协议标识符)00 04(字节长度) FF(单位标识符) 01(功能码01) 01(返回线圈的长度为1字节) 01(返回线圈值001高位补0后转换为16进制得01)
 
 
-    // 6. 向客户端发送响应数据 
-    string response = "Hello Client!"; // 要发送的内容
-    // 将字符串转为 UTF-8 字节数组发送
-    clientSocket.Send(Encoding.UTF8.GetBytes(response));
+<img width="1898" height="1058" alt="image" src="https://github.com/user-attachments/assets/3b56cdc0-4a90-42bf-ba38-d70f4c5b11ce" />
 
 
-    // 7. 关闭连接，释放资源 
-    clientSocket.Close(); // 关闭与当前客户端的连接
-    serverSocket.Close(); // 关闭服务端监听 Socket
-}
-```
-
-在调试的时候打开netassist，将模式调成TCP Client客户端格式，C#充当服务端，端口设置成代码一致的端口，在监听的时候打开连接，即可看到效果，如果想一次性多次接受数据，可以利用好while循环
+<img width="1892" height="1060" alt="image" src="https://github.com/user-attachments/assets/a0903b88-a550-4c49-9f9d-7c3d5cf167b9" />
 
 
-<img width="1479" height="759" alt="image" src="https://github.com/user-attachments/assets/5947dd3a-e9af-4e16-83e6-fb531d655ea2" />
+主站收到后确认无误后就得到了想要的数据
 
 
-如果不想在等待的时候阻塞进程，并且要实现服务端监听多个客户端，以及接收多个客户端的信息，可以使用多线程。
-
-```c#
-//接受客户端的连接
-while (true)
-{
-    Socket client = serverSocket.Accept();
-    Console.WriteLine($"客户端已经连接：{client.RemoteEndPoint}");
-
-    //接收数据
-    byte[] buffer = new byte[1024];
-    Task.Factory.StartNew(() =>
-    {
-        while (true)
-        {
-            int bytesRead = client.Receive(buffer);
-            string message = Encoding.UTF8.GetString(buffer, 0, bytesRead);
-            Console.WriteLine($"收到消息：{message}");
-            //发送响应
-            string response = "我已收到消息";
-            client.Send(Encoding.UTF8.GetBytes(response));
-        }
-    });
-}
-```
-
-<img width="1432" height="878" alt="image" src="https://github.com/user-attachments/assets/dd0ea821-680a-400e-a39d-215a3fa126d1" />
-
-### 3、TCP客户端举例
-
-```c#
- static void StartClient()
- {
-     // 1. 创建客户端 Socket 
-     // AddressFamily.InterNetwork：使用 IPv4 协议
-     // SocketType.Stream：面向连接的字节流（TCP）
-     // ProtocolType.Tcp：使用 TCP 协议
-     Socket clientSocket = new Socket(
-         AddressFamily.InterNetwork,
-         SocketType.Stream,
-         ProtocolType.Tcp
-     );
-
-     try
-     {
-         // 2. 连接到服务端
-         // IPAddress.Parse("127.0.0.1")：服务端的 IP 地址（本机测试用回环地址）
-         // 8888：服务端监听的端口（必须和服务端代码一致）
-         IPEndPoint serverEndPoint = new IPEndPoint(IPAddress.Parse("127.0.0.1"), 8888);
-
-         // 主动发起与服务端的三次握手连接
-         clientSocket.Connect(serverEndPoint);
-         Console.WriteLine("已成功连接到服务器！");
-
-         // 3. 向服务端发送数据 
-         string sendMsg = "Hello Server! 我是客户端";
-         // 将字符串转为 UTF-8 编码的字节数组发送
-         clientSocket.Send(Encoding.UTF8.GetBytes(sendMsg));
-         Console.WriteLine($"发送消息: {sendMsg}");
-
-         // 4. 接收服务端的响应 
-         byte[] buffer = new byte[1024]; // 定义接收缓冲区
-         // Receive() 会阻塞，直到服务端发送数据回来
-         // 返回值 bytesRead 表示实际收到的字节数
-         int bytesRead = clientSocket.Receive(buffer);
-
-         // 将字节数组按 UTF-8 编码转回字符串
-         string response = Encoding.UTF8.GetString(buffer, 0, bytesRead);
-         Console.WriteLine($"服务器响应: {response}");
-
-     }
-     catch (SocketException ex)
-     {
-         Console.WriteLine($"网络异常: {ex.Message}");
-     }
-     finally
-     {
-         // 5. 关闭连接，释放资源 
-         // 无论是否发生异常，都要关闭 Socket 释放端口资源
-         clientSocket.Shutdown(SocketShutdown.Both); // 禁止发送和接收
-         clientSocket.Close(); // 关闭连接
-         Console.WriteLine("连接已关闭");
-     }
- }
-```
+<img width="1895" height="1058" alt="image" src="https://github.com/user-attachments/assets/02b66af6-feb7-40f9-8b37-6c094c972db2" />
 
 
-<img width="1363" height="763" alt="image" src="https://github.com/user-attachments/assets/6762f3e1-d1df-45ff-9df7-12441975c291" />
+
+##### 其他操作可以根据图中来写，都大差不差的
 
 
-### 4、UDP服务器举例
+<img width="1844" height="1077" alt="image" src="https://github.com/user-attachments/assets/4c54b827-8ae6-4ecb-adc3-a917012a12ad" />
 
-相比于TCP，UDP不需要做连接，只需要启动UDP服务器，然后客户端直接发
 
-<img width="715" height="299" alt="image" src="https://github.com/user-attachments/assets/b25dc2b2-8693-4baa-bc50-85bd3c8e1e1c" />
 
+
+### 三、封装TCP类
+
+首先需要一个TCPInfo类来建立TCP的模型（IP地址+端口号），类似于封装Serial类
 
 ```c#
 using System;
-using System.Net;
-using System.Net.Sockets;
+using System.Collections.Generic;
+using System.Linq;
 using System.Text;
+using System.Threading.Tasks;
 
-namespace UdpServerDemo
+namespace Communication
 {
-    class Program
+    public class TcpInfo
     {
-        static void Main(string[] args)
-        {
-            Console.WriteLine("=== UDP 服务端启动 ===");
-            UdpServer();
-            Console.ReadLine();
-        }
-
-        static void UdpServer()
-        {
-            // 1. 创建 UDP Socket
-            // AddressFamily.InterNetwork：使用 IPv4 协议
-            // SocketType.Dgram：数据报类型（UDP 专用）
-            // ProtocolType.Udp：指定传输层协议为 UDP
-            Socket udpServer = new Socket(
-                AddressFamily.InterNetwork,
-                SocketType.Dgram,
-                ProtocolType.Udp
-            );
-
-            // 2. 绑定端口，开始监听 
-            // IPAddress.Any：监听本机所有网卡的 IP（0.0.0.0）
-            // 9999：服务端监听的端口号
-            IPEndPoint localEP = new IPEndPoint(IPAddress.Any, 9999);
-            udpServer.Bind(localEP);
-            Console.WriteLine($"服务端已启动，监听端口 {localEP.Port}，等待消息...");
-
-            // 3. 接收客户端数据
-            byte[] buffer = new byte[1024]; // 接收缓冲区，最大一次接收 1024 字节
-
-            // 客户端的地址信息（会在 ReceiveFrom 中被自动填充）
-            EndPoint clientEndPoint = new IPEndPoint(IPAddress.Any, 0);
-
-            // ReceiveFrom 是 UDP 专用的接收方法
-            // 会阻塞，直到收到数据，并把发送方的地址写入 clientEndPoint
-            int bytesRead = udpServer.ReceiveFrom(buffer, ref clientEndPoint);
-
-            // 将收到的字节数组按 UTF-8 转为字符串
-            string message = Encoding.UTF8.GetString(buffer, 0, bytesRead);
-
-            // 打印客户端地址和收到的消息
-            Console.WriteLine($"收到来自 [{clientEndPoint}] 的消息：{message}");
-
-            // 4. 关闭 Socket
-            udpServer.Close();
-        }
+        public string IpAddress { get; set; } = "127.0.0.1";
+        public int Port { get; set; } = 502;
     }
 }
 ```
 
-
-
-
-### 5、UDP客户端举例
+接下来就是封装TCP了
 
 ```c#
 using System;
-using System.Net;
+using System.Collections.Generic;
+using System.Linq;
 using System.Net.Sockets;
 using System.Text;
+using System.Threading.Tasks;
 
-namespace UdpClientDemo
+namespace Zhaoxi.Communication.Modbus
 {
-    class Program
+    public class TCP
     {
-        static void Main(string[] args)
+        public Action<int, List<byte>> ResponseData;
+
+        private static TCP _instance;
+        private static TcpInfo _tcpInfo;
+
+        TcpClient _tcpClient;
+        NetworkStream _stream;
+        bool _isBusing = false;
+
+        int _currentUnitId;
+        int _funcCode;
+        int _wordLen;
+        int _startAddr;
+        ushort _transactionId = 0;
+
+        private TCP(TcpInfo tcpInfo)
         {
-            Console.WriteLine("=== UDP 客户端启动 ===");
-            UdpClient();
-            Console.ReadLine();
+            _tcpClient = new TcpClient();
+            _tcpInfo = tcpInfo;
         }
 
-        static void UdpClient()
+        public static TCP GetInstance(TcpInfo tcpInfo)
         {
-            //  1. 创建 UDP Socket 
-            Socket udpClient = new Socket(
-                AddressFamily.InterNetwork,
-                SocketType.Dgram,
-                ProtocolType.Udp
-            );
+            lock ("tcp")
+            {
+                if (_instance == null)
+                    _instance = new TCP(tcpInfo);
+                return _instance;
+            }
+        }
 
-            // 2. 指定要发送到的服务端地址 
-            // 127.0.0.1：本机测试用的回环地址（服务端和客户端在同一台电脑）
-            // 9999：和服务端绑定的端口号必须一致
-            IPEndPoint serverEndPoint = new IPEndPoint(
-                IPAddress.Parse("127.0.0.1"), 
-                9999
-            );
+        public bool Connection()    //建立连接
+        {
+            try
+            {
+                if (_tcpClient.Connected)
+                    _tcpClient.Close();
 
-            //  3. 向服务端发送数据 
-            string sendMsg = "Hello UDP!";
-            // SendTo 是 UDP 专用的发送方法，需要指定目标地址
-            udpClient.SendTo(
-                Encoding.UTF8.GetBytes(sendMsg), 
-                serverEndPoint
-            );
+                _tcpClient.Connect(_tcpInfo.IpAddress, _tcpInfo.Port);
+                _stream = _tcpClient.GetStream();
 
-            Console.WriteLine($"已向 [{serverEndPoint}] 发送消息：{sendMsg}");
+                // 开启后台线程监听接收数据
+                Task.Run(ReceiveLoop);
+            }
+            catch
+            {
+                return false;
+            }
 
-            // 4. 关闭 Socket 
-            udpClient.Close();
+            return true;
+        }
+
+        public void Dispose()  //关闭连接
+        {
+            if (_stream != null)
+            {
+                _stream.Close();
+                _stream.Dispose();
+                _stream = null;
+            }
+
+            if (_tcpClient.Connected)
+            {
+                _tcpClient.Close();
+                _tcpClient.Dispose();
+                _tcpClient = null;
+            }
+        }
+
+        byte[] _receiveBuffer = new byte[1024];
+        int _receiveByteCount = 0;
+
+        private void ReceiveLoop()    //读取数据
+        {
+            try
+            {
+                while (_tcpClient.Connected)
+                {
+                    if (_stream.DataAvailable)
+                    {
+                        int bytesRead = _stream.Read(_receiveBuffer, _receiveByteCount,
+                            _receiveBuffer.Length - _receiveByteCount);
+                        _receiveByteCount += bytesRead;
+
+                        // 判断是否收完一整帧：MBAP头里第4-5字节是长度
+                        if (_receiveByteCount >= 6)
+                        {
+                            int frameLength = (_receiveBuffer[4] << 8) | _receiveBuffer[5];
+                            frameLength += 6; // 加上MBAP头自身
+
+                            if (_receiveByteCount >= frameLength)
+                            {
+                                // 检查单元标识符和功能码
+                                if (_receiveBuffer[6] == (byte)_currentUnitId
+                                    && _receiveBuffer[7] == _funcCode)
+                                {
+                                    ResponseData?.Invoke(_startAddr,
+                                        new List<byte>(SubByteArray(_receiveBuffer, 7, frameLength - 7)));
+                                }
+
+                                _receiveByteCount = 0;
+                                Array.Clear(_receiveBuffer, 0, _receiveBuffer.Length);
+                            }
+                        }
+                    }
+
+                    Task.Delay(10).Wait();
+                }
+            }
+            catch { }
+        }
+
+        public async Task<bool> Send(int unitId, byte funcCode, int startAddr, int len)   //发送数据
+        {
+            _currentUnitId = unitId;
+            _funcCode = funcCode;
+            _startAddr = startAddr;
+
+            if (funcCode == 0x01)
+                _wordLen = len / 8 + ((len % 8 > 0) ? 1 : 0);
+            if (funcCode == 0x03)
+                _wordLen = len * 2;
+
+            // 构建 PDU（协议数据单元：功能码 + 数据）
+            List<byte> pdu = new List<byte>();
+            pdu.Add(funcCode);
+            pdu.Add((byte)(startAddr / 256));
+            pdu.Add((byte)(startAddr % 256));
+            pdu.Add((byte)(len / 256));
+            pdu.Add((byte)(len % 256));
+
+            // 构建 MBAP 头（7字节）
+            _transactionId++;
+            List<byte> sendBuffer = new List<byte>();
+            sendBuffer.Add((byte)(_transactionId >> 8));   // 事务标识符高字节
+            sendBuffer.Add((byte)(_transactionId & 0xFF));  // 事务标识符低字节
+            sendBuffer.Add(0x00);                            // 协议标识符高字节（固定0）
+            sendBuffer.Add(0x00);                            // 协议标识符低字节（固定0）
+            sendBuffer.Add((byte)((pdu.Count + 1) >> 8));   // 长度高字节（单元标识符1字节 + PDU）
+            sendBuffer.Add((byte)((pdu.Count + 1) & 0xFF)); // 长度低字节
+            sendBuffer.Add((byte)unitId);                    // 单元标识符
+
+            sendBuffer.AddRange(pdu);
+
+            try
+            {
+                while (_isBusing) { }
+
+                _isBusing = true;
+                _stream.Write(sendBuffer.ToArray(), 0, sendBuffer.Count);
+                _isBusing = false;
+
+                await Task.Delay(1000);
+            }
+            catch
+            {
+                return false;
+            }
+
+            _receiveByteCount = 0;
+            return true;
+        }
+
+        private byte[] SubByteArray(byte[] byteArr, int start, int len)  //工具类
+        {
+            byte[] Res = new byte[len];
+            if (byteArr != null && byteArr.Length > len)
+            {
+                for (int i = 0; i < len; i++)
+                {
+                    Res[i] = byteArr[i + start];
+                }
+            }
+            return Res;
         }
     }
 }
 ```
 
-### 6、UDP广播
-
-UDP 广播发送端（主动发广播）
-
-```c#
-using System;
-using System.Net;
-using System.Net.Sockets;
-using System.Text;
-
-namespace UdpBroadcastSend
-{
-    class Program
-    {
-        static void Main(string[] args)
-        {
-            Console.WriteLine("=== UDP 广播发送端 ===");
-            SendBroadcast();
-        }
-
-        static void SendBroadcast()
-        {
-            // 1. 创建 UDP Socket（Dgram = UDP）
-            Socket socket = new Socket(
-                AddressFamily.InterNetwork,
-                SocketType.Dgram,
-                ProtocolType.Udp
-            );
-
-            // 2. 开启广播功能（必须加这句，否则发不了广播）
-            socket.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.Broadcast, true);
-
-            // 3. 广播地址：255.255.255.255
-            // 端口：8888（接收端必须用同一个端口）
-            IPEndPoint broadcastEP = new IPEndPoint(IPAddress.Broadcast, 8888);
-
-            // 4. 要发送的广播消息
-            string msg = "大家好！我是 UDP 广播消息！";
-            byte[] data = Encoding.UTF8.GetBytes(msg);
-
-            // 5. 发送广播
-            socket.SendTo(data, broadcastEP);
-            Console.WriteLine("广播已发送：" + msg);
-
-            // 6. 关闭
-            socket.Close();
-            Console.ReadLine();
-        }
-    }
-}
-```
-
-UDP 广播接收端（监听广播）
-
-```c#
-using System;
-using System.Net;
-using System.Net.Sockets;
-using System.Text;
-
-namespace UdpBroadcastReceive
-{
-    class Program
-    {
-        static void Main(string[] args)
-        {
-            Console.WriteLine("=== UDP 广播接收端（监听中）===");
-            ReceiveBroadcast();
-        }
-
-        static void ReceiveBroadcast()
-        {
-            // 1. 创建 UDP Socket
-            Socket socket = new Socket(
-                AddressFamily.InterNetwork,
-                SocketType.Dgram,
-                ProtocolType.Udp
-            );
-
-            // 2. 绑定端口（必须和发送端端口一样：8888）
-            IPEndPoint localEP = new IPEndPoint(IPAddress.Any, 8888);
-            socket.Bind(localEP);
-
-            // 3. 准备接收
-            byte[] buffer = new byte[1024];
-            EndPoint remoteEP = new IPEndPoint(IPAddress.Any, 0);
-
-            // 4. 等待接收广播（阻塞，直到收到消息）
-            int len = socket.ReceiveFrom(buffer, ref remoteEP);
-            string msg = Encoding.UTF8.GetString(buffer, 0, len);
-
-            // 5. 显示谁发的广播 + 内容
-            Console.WriteLine($"收到来自 [{remoteEP}] 的广播：");
-            Console.WriteLine(msg);
-
-            socket.Close();
-            Console.ReadLine();
-        }
-    }
-}
-```
 
 
-注意：
-- 必须开启 Broadcast = true
-- 目标地址是 255.255.255.255
-- 收发端口必须完全一样
 
-
-## 二、TcpClient
-
-TcpClient是System.Net.Sockets命名空间下的一个类，封装了底层的Socket操作，简化了TCP协议的通信流程，同时也支持同步和异步的操作，试用于客户端和服务器的开发
-
-<img width="961" height="274" alt="image" src="https://github.com/user-attachments/assets/6002b4c9-2f1b-48d7-95d9-0eafede4c96b" />
