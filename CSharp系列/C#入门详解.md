@@ -866,11 +866,11 @@ internal class Program
             Student student = new Student();
             student.age = 40;    
             student.name = "Test";
-Student student2 = new Student();
+            Student student2 = new Student();
             student2.age = 80;  
             student.name = "Test";
+        }
 }
-    }
 class Student
     {
         public int age;        //实例字段
@@ -882,7 +882,7 @@ class Student
         }
         static Student() //静态构造器（给静态字段用的，会在数据加载的时候执行而且只会执行一次）
         {
-}
+        }        
     }
 }
 ```
