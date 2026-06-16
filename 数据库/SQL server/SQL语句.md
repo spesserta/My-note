@@ -46,12 +46,12 @@ create table 表名
 
 ```
 
->-约束：check(** == '' or ** == '' )表示多个条件约束，unique表示唯一约束
->-主键：primary key  ，默认唯一,自己表的唯一身份证，用来唯一标识自己这一行
->-非空：not null
->-默认值：default(**)
->-外键：Foreign Key ,表示引用别人表的主键，用来建立两张表之间的关系
->-引用外键：reference
+>- 约束：check(** == '' or ** == '' )表示多个条件约束，unique表示唯一约束
+>- 主键：primary key  ，默认唯一,自己表的唯一身份证，用来唯一标识自己这一行
+>- 非空：not null
+>- 默认值：default(**)
+>- 外键：Foreign Key ,表示引用别人表的主键，用来建立两张表之间的关系
+>- 引用外键：reference
 
 >例如我要建立一个部门表、职级表、员工表
 ```sql   
