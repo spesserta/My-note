@@ -1,3 +1,8 @@
+SVN官方教程地址：
+```
+https://svnbucket.com/posts/svn-tutorial/
+```
+
 ### 一、SVN介绍
 
 - 代码版本管理工具
@@ -186,7 +191,9 @@ SVNBucket网站是模拟服务器的，然后乌龟SVN是客户端<br>
 
 
 
+4、切换分支
 
+右键TortoiseSVN => Switch => 选择需要切换的分支，点击确定就可以了
 
 
 
