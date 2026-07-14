@@ -122,13 +122,13 @@ SVNBucket网站是模拟服务器的，然后乌龟SVN是客户端<br>
 - 撤销本地修改：TortoiseSVN->Revert 就可以丢弃本地修改了
 - 撤销已经提交的内容
 
-1、撤销本地修改
+#### 1、撤销本地修改
 
 右键文件就行了，就像下面这样
 
 <img width="699" height="1033" alt="image" src="https://github.com/user-attachments/assets/7e5bca20-9c65-4ec9-bead-a4bde02f918a" />
 
-2、撤销已经提交的代码
+#### 2、撤销已经提交的代码
 
 右键TortoiseSVN ==> show log 查看提交记录。<br>
 选择我们需要回去的版本，右键选择Revert to this version，这样就回去了指定的版本。<br>
@@ -174,24 +174,24 @@ SVNBucket网站是模拟服务器的，然后乌龟SVN是客户端<br>
 
 ### 九、分支
 
-1、什么时候需要开分支?
+#### 1、什么时候需要开分支?
 - 隔离线上版本和开发版本
 - 大功能开发，不想影响到其他人，自己独立开个分支去开发
 
 
-2、SVIN经典目录结构:
+#### 2、SVIN经典目录结构:
 - trunk
 - branches
 - tags
 
-3、以上面的目录结构为例子，我们从当前主干创建一个分支出去，表示1.0版本，操作步骤如下：
+#### 3、以上面的目录结构为例子，我们从当前主干创建一个分支出去，表示1.0版本，操作步骤如下：
 
 - 右键 trunk 目录 => 右键TortoiseSVN => Branch/tag
 - 填写分支路径/branches/online1.0，填写注释，选择最用最新的版本开分支
 
 
 
-4、切换分支
+#### 4、切换分支
 
 右键TortoiseSVN => Switch => 选择需要切换的分支，点击确定就可以了
 
